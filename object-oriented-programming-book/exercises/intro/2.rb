@@ -1,24 +1,34 @@
-=begin
+class MyCar
+  attr_accessor :color
+  attr_reader :year
 
-What is a module? What is its purpose? How do we use them with our classes?
-Create a module for the class you created in exercise 1 and include it properly.
+  def initialize(year, color, model)
+    @year = year
+    @color = color
+    @model = model
+    @speed = 0
+  end
 
-Modules are a way of defining a behavior that can then be adopted by or "mixed
-in" to classes. They are useful in that they can provide those behaviors to
-otherwise potentially unrelated classes. They are used in classes by using the
-`include` method
+  def accelerate(speed_increase)
+    if speed_increase.negative?
+      brake(speed_increase)
+    else
+      @speed += speed_increase
+      puts "You push down on the gas and your speed increases to #{@speed} mph"
+    end
+  end
 
-=end
+  def brake(speed_decrease)
+    if speed_decrease.positive?
+      accelerate(speed_decrease)
+    else
+      @speed += speed_decrease
+      puts "You push down on the brake and your speed decreases to #{@speed} mph"
+    end
+  end
 
-module MyModule
-  def new_method
-    puts "My new method!"
+  def turn_off
+    @speed = 0
+    puts "You turn off the car, and your speed is now #{@speed} mph"
   end
 end
-
-class NewObject
-  include MyModule
-end
-
-new_object = NewObject.new
-new_object.new_method
