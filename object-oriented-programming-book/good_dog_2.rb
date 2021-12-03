@@ -40,6 +40,10 @@ class GoodDog
   def info
     "#{name} weighs #{weight} and is #{height} tall."
   end
+
+  def self.what_am_i
+    "I'm a GoodDog class!"
+  end
 end
 
 sparky = GoodDog.new("Sparky", '12 inches', '10 lbs')
@@ -47,6 +51,8 @@ puts sparky.info
 
 sparky.change_info('Spartacus', '24 inches', '45 lbs')
 puts sparky.info
+
+p GoodDog.what_am_i
 
 #sparky = GoodDog.new("Sparky")
 #puts sparky.speak
