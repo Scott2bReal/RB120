@@ -1,0 +1,25 @@
+# Suppose we're building a software system for a pet hotel business, so our
+# classes deal with pets.
+
+class Dog
+  def speak
+    'bark!'
+  end
+
+  def swim
+    'swimming!'
+  end
+end
+
+class Bulldog < Dog
+  def swim
+    'can\'t swim!'
+  end
+end
+
+teddy = Dog.new
+puts teddy.speak
+puts teddy.swim
+bruno = Bulldog.new
+puts bruno.speak
+puts bruno.swim
