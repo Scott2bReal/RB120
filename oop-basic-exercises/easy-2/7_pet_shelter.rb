@@ -44,12 +44,12 @@ B Holmes has 4 adopted pets.
 The order of the output does not matter, so long as all of the information is presented.
 
 Algorithm/Mental Model:
-  - Pets look like they need at least name and animal attributes, 
-      - pet should get to_s which displays animal and name 
+  - Pets look like they need at least name and animal attributes,
+      - pet should get to_s which displays animal and name
   - Owner needs a name on init, and have a number of pets
   - Shelters can adopt and print adoptions, have attributes human and animal
     - print_adoptions method needs: Owner name, Owner number_of_pets
-    - adopt method should 
+    - adopt method should
 
 =end
 
@@ -81,10 +81,19 @@ class Owner
 end
 
 class Shelter
-  attr_accessor :humans
+  attr_accessor :humans, :available_pets
 
   def initialize
     @humans = []
+    @available_pets = [
+      Pet.new('dog', 'Asta'),
+      Pet.new('dog', 'Laddie'),
+      Pet.new('cat', 'Fluffy'),
+      Pet.new('cat', 'Kat'),
+      Pet.new('cat', 'Ben'),
+      Pet.new('parakeet', 'Chatterbox'),
+      Pet.new('parakeet', 'Bluebell')
+    ]
   end
 
   def adopt(owner, pet)
@@ -96,12 +105,24 @@ class Shelter
     humans.each do |owner|
       puts "#{owner.name} has adopted the following pets:"
 
-      owner.pets do |pet|
+      owner.pets.each do |pet|
         puts pet
       end
 
       puts "\n"
     end
+  end
+
+  def print_available_pets
+    puts "The Animal Shelter has the following unadopted pets:"
+    available_pets.each do |pet|
+      puts pet
+    end
+    puts "\n"
+  end
+
+  def print_number_of_available_pets
+    puts "The Animal shelter has #{available_pets.size} unadopted pets."
   end
 end
 
@@ -124,6 +145,8 @@ shelter.adopt(bholmes, kennedy)
 shelter.adopt(bholmes, sweetie)
 shelter.adopt(bholmes, molly)
 shelter.adopt(bholmes, chester)
+shelter.print_available_pets
 shelter.print_adoptions
 puts "#{phanson.name} has #{phanson.number_of_pets} adopted pets."
 puts "#{bholmes.name} has #{bholmes.number_of_pets} adopted pets."
+puts shelter.print_number_of_available_pets
