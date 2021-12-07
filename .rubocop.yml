@@ -139,7 +139,7 @@ Style/ParenthesesAroundCondition:
   Enabled: true
   AllowSafeAssignment: false
 
-Style/ercentLiteralDelimiters:
+Style/PercentLiteralDelimiters:
   Description: 'Use `%`-literal delimiters consistently'
   Enabled: true
   PreferredDelimiters:
