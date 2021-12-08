@@ -69,16 +69,25 @@ class Human < Player
   end
 
   def choose
-    choice = nil
+    answer = nil
     loop do
       puts "Please choose 1) rock, 2) paper, or 3) scissors:"
-      choice = gets.chomp
-      break if Move::VALUES.include?(choice)
+      answer = gets.chomp
+      break if ['1', '2', '3'].include?(answer)
 
-      puts "Sorry, invalid choice"
+      puts "Sorry, invalid choice. Please select using 1, 2 or 3"
     end
 
+    choice = translate_choice(answer)
     self.move = Move.new(choice)
+  end
+
+  def translate_choice(answer)
+    case answer
+    when '1' then 'rock'
+    when '2' then 'paper'
+    when '3' then 'scissors'
+    end
   end
 end
 
@@ -167,12 +176,6 @@ class RPSGame
     return true if answer
   end
 
-  def ultimate_winner?
-    return true if human.score == ROUNDS_TO_WIN
-    return true if computer.score == ROUNDS_TO_WIN
-    false
-  end
-
   def clear_screen
     system('clear')
   end
@@ -185,7 +188,7 @@ class RPSGame
     play
   end
 
-  def determine_ultimate_winner!
+  def ultimate_winner!
     self.ultimate_winner = human if human.score == ROUNDS_TO_WIN
     self.ultimate_winner = computer if computer.score == ROUNDS_TO_WIN
   end
@@ -199,7 +202,7 @@ class RPSGame
     display_moves
     display_winner
     reset_round_winner!
-    determine_ultimate_winner!
+    ultimate_winner!
     continue?
   end
 
@@ -210,7 +213,7 @@ class RPSGame
       human.choose
       computer.choose
       end_of_round
-      break if ultimate_winner?
+      break if ultimate_winner!
     end
     display_ultimate_winner
     play_again? ? play_new_game! : display_goodbye_message
