@@ -45,6 +45,14 @@ class Player
     @name = set_name
     @score = 0
   end
+
+  def win!
+    self.score += 1
+  end
+
+  def to_s
+    name
+  end
 end
 
 class Human < Player
@@ -63,7 +71,7 @@ class Human < Player
   def choose
     choice = nil
     loop do
-      puts "Please choose rock, paper, or scissors:"
+      puts "Please choose 1) rock, 2) paper, or 3) scissors:"
       choice = gets.chomp
       break if Move::VALUES.include?(choice)
 
@@ -86,11 +94,14 @@ class Computer < Player
 end
 
 class RPSGame
-  attr_accessor :human, :computer
+  ROUNDS_TO_WIN = 2
+
+  attr_accessor :human, :computer, :round_winner, :ultimate_winner
 
   def initialize
     @human = Human.new
     @computer = Computer.new(:computer)
+    @round_winner = nil
   end
 
   def display_welcome_message
@@ -98,18 +109,34 @@ class RPSGame
   end
 
   def display_moves
+    puts "\n"
     puts "#{human.name} chose #{human.move}"
     puts "#{computer.name} chose #{computer.move}"
   end
 
   def display_winner
-    if human.move > computer.move
-      puts "#{human.name} won!"
-    elsif human.move < computer.move
-      puts "#{computer.name} won!"
+    if round_winner == human
+      puts "#{human} won!"
+    elsif round_winner == computer
+      puts "#{computer} won!"
     else
       puts "It's a tie!"
     end
+  end
+
+  def determine_winner!
+    if human.move > computer.move
+      human.win!
+      self.round_winner = human
+    elsif human.move < computer.move
+      computer.win!
+      self.round_winner = computer
+    end
+  end
+
+  def display_score
+    clear_screen
+    puts "The score is #{human}: #{human.score}; #{computer}: #{computer.score}"
   end
 
   def display_goodbye_message
@@ -129,16 +156,64 @@ class RPSGame
     false
   end
 
+  def reset_round_winner!
+    self.round_winner = nil
+  end
+
+  def continue?
+    puts "\n"
+    puts "Please hit any key to continue!"
+    answer = gets.chomp
+    return true if answer
+  end
+
+  def ultimate_winner?
+    return true if human.score == ROUNDS_TO_WIN
+    return true if computer.score == ROUNDS_TO_WIN
+    false
+  end
+
+  def clear_screen
+    system('clear')
+  end
+
+  def play_new_game!
+    [human, computer].each do |player|
+      player.score = 0
+    end
+
+    play
+  end
+
+  def determine_ultimate_winner!
+    self.ultimate_winner = human if human.score == ROUNDS_TO_WIN
+    self.ultimate_winner = computer if computer.score == ROUNDS_TO_WIN
+  end
+
+  def display_ultimate_winner
+    puts "#{ultimate_winner} wins the match!"
+  end
+
+  def end_of_round
+    determine_winner!
+    display_moves
+    display_winner
+    reset_round_winner!
+    determine_ultimate_winner!
+    continue?
+  end
+
   def play
     display_welcome_message
     loop do
+      display_score
       human.choose
       computer.choose
-      display_moves # New in this draft
-      display_winner
-      break unless play_again?
+      end_of_round
+      break if ultimate_winner?
     end
-    display_goodbye_message
+    display_ultimate_winner
+    play_again? ? play_new_game! : display_goodbye_message
   end
 end
 
