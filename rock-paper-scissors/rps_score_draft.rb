@@ -1,7 +1,14 @@
 class Move
   attr_reader :value
 
-  VALUES = ['rock', 'paper', 'scissors']
+  # Make this a hash where the values are the pairs the key beats
+  VALUES = {
+    'rock' => %w(lizard spock),
+    'paper' => %w(rock spock),
+    'scissors' => %w(paper lizard),
+    'lizard' => %w(rock scissors),
+    'spock' => %w(spock paper)
+  }
 
   def initialize(value)
     @value = value
@@ -19,17 +26,34 @@ class Move
     @value == 'scissors'
   end
 
-  def >(other_move)
-    (rock? && other_move.scissors?) ||
-      (paper? && other_move.rock?) ||
-      (scissors? && other_move.paper?)
+  def lizard?
+    @value == 'lizard'
   end
 
-  def <(other_move)
-    (rock? && other_move.paper?) ||
-      (paper? && other_move.scissors?) ||
-      (scissors? && other_move.rock?)
+  def spock?
+    @value == 'spock'
   end
+
+  def >(other_move)
+    rock? && VALUES[rock].include?(other_move) ||
+      paper? && VALUES[paper].include?(other_move) ||
+      scissors? && VALUES[scissors].include?(other_move) ||
+      lizard? && VALUES[lizard].include?(other_move) ||
+      spock? && VALUES[spock].include?(other_move)
+  end
+
+  # These can be refactored
+  #def >(other_move)
+    #(rock? && other_move.scissors?) ||
+      #(paper? && other_move.rock?) ||
+      #(scissors? && other_move.paper?)
+  #end
+
+  #def <(other_move)
+    #(rock? && other_move.paper?) ||
+      #(paper? && other_move.scissors?) ||
+      #(scissors? && other_move.rock?)
+  #end
 
   def to_s
     @value
@@ -97,7 +121,7 @@ class Computer < Player
   end
 
   def choose
-    mv = Move::VALUES.sample
+    mv = Move::VALUES.keys.sample
     self.move = Move.new(mv)
   end
 end
