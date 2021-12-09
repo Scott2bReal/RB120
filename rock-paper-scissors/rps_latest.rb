@@ -74,10 +74,6 @@ class Human < Player
     n
   end
 
-  def invalid_name_choice_message
-    "Sorry, must enter a value"
-  end
-
   def choose
     answer = nil
     loop do
@@ -98,19 +94,23 @@ class Human < Player
       choices << "#{idx + 1}) #{choice}"
     end
 
-    puts "#{name}, please select your move: #{choices.join(', ')}"
+    "#{name}, please select your move: #{choices.join(', ')}"
   end
 
   def valid_answer?(answer)
     (1..Player::POSSIBLE_MOVES.size).include?(answer.to_i)
   end
 
+  def translate_choice(answer)
+    Player::POSSIBLE_MOVES[answer.to_i - 1].new
+  end
+
   def invalid_move_choice_message
     "Sorry, invalid choice. Please select using numbers"
   end
 
-  def translate_choice(answer)
-    Player::POSSIBLE_MOVES[answer.to_i - 1].new
+  def invalid_name_choice_message
+    "Sorry, must enter a value"
   end
 end
 
@@ -142,6 +142,7 @@ class RPSGame
   First to #{ROUNDS_TO_WIN} wins is the ultimate winner!
 
     MSG
+
   attr_accessor :human, :computer, :round_winner, :ultimate_winner
 
   def initialize
@@ -161,8 +162,8 @@ class RPSGame
 
   def display_moves
     puts "\n"
-    puts "#{human.name} chose #{human.move}"
-    puts "#{computer.name} chose #{computer.move}"
+    puts "#{human} chose #{human.move}"
+    puts "#{computer} chose #{computer.move}"
   end
 
   def display_winner
