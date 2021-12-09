@@ -1,37 +1,26 @@
 class Move
   attr_reader :value
 
-  # Make this a hash where the values are the pairs the key beats
+  WHO_BEATS_WHO =
+    <<-MSG
+    Here are the rules:
+
+    Scissors cuts paper. Paper covers rock. Rock crushes lizard. Lizard poisons
+    Spock. Spock smashes scissors. Scissors decapitates lizard. Lizard eats paper.
+    Paper disproves Spock. Spock vaporizes rock. Rock crushes scissors.
+
+    MSG
+
   VALUES = {
-    'rock' => %w(lizard spock),
+    'rock' => %w(lizard scissors),
     'paper' => %w(rock spock),
     'scissors' => %w(paper lizard),
-    'lizard' => %w(rock scissors),
-    'spock' => %w(spock paper)
+    'lizard' => %w(spock paper),
+    'spock' => %w(rock scissors)
   }
 
   def initialize(value)
     @value = value
-  end
-
-  def rock?
-    @value == 'rock'
-  end
-
-  def paper?
-    @value == 'paper'
-  end
-
-  def scissors?
-    @value == 'scissors'
-  end
-
-  def lizard?
-    @value == 'lizard'
-  end
-
-  def spock?
-    @value == 'spock'
   end
 
   def >(other_move)
@@ -73,6 +62,7 @@ class Human < Player
       puts "What's your name?"
       n = gets.chomp
       break unless n.empty?
+
       puts "Sorry, must enter a value"
     end
 
@@ -84,9 +74,9 @@ class Human < Player
     loop do
       puts "Please choose 1) rock, 2) paper, 3) scissors, 4) lizard, 5) spock:"
       answer = gets.chomp
-      break if ['1', '2', '3'].include?(answer)
+      break if ['1', '2', '3', '4', '5'].include?(answer)
 
-      puts "Sorry, invalid choice. Please select using 1, 2 or 3"
+      puts "Sorry, invalid choice. Please select using 1, 2, 3, 4 or 5"
     end
 
     choice = translate_choice(answer)
@@ -116,7 +106,7 @@ class Computer < Player
 end
 
 class RPSGame
-  ROUNDS_TO_WIN = 2
+  ROUNDS_TO_WIN = 10
 
   attr_accessor :human, :computer, :round_winner, :ultimate_winner
 
@@ -150,7 +140,7 @@ class RPSGame
     if human.move > computer.move
       human.win!
       self.round_winner = human
-    elsif computer.move > human.move
+    elsif human.move < computer.move
       computer.win!
       self.round_winner = computer
     end
@@ -158,7 +148,14 @@ class RPSGame
 
   def display_score
     clear_screen
-    puts "The score is #{human}: #{human.score}; #{computer}: #{computer.score}"
+    puts Move::WHO_BEATS_WHO
+    scoreboard = <<-MSG
+              Score
+    ** #{human}: #{human.score}; #{computer}: #{computer.score} **"
+
+    MSG
+
+    puts scoreboard
   end
 
   def display_goodbye_message
