@@ -1,18 +1,6 @@
 class Move
   attr_reader :value
 
-  WHO_BEATS_WHO =
-    <<-MSG
-  Welcome to Rock Paper Scissors Lizard Spock!
-
-  Here are the rules:
-
-  Scissors cuts paper. Paper covers rock. Rock crushes lizard. Lizard poisons
-  Spock. Spock smashes scissors. Scissors decapitates lizard. Lizard eats paper.
-  Paper disproves Spock. Spock vaporizes rock. Rock crushes scissors.
-
-    MSG
-
   def to_s
     self.class.to_s.downcase
   end
@@ -142,8 +130,18 @@ class Computer < Player
 end
 
 class RPSGame
-  ROUNDS_TO_WIN = 10
+  ROUNDS_TO_WIN = 2
+  RULES =
+    <<-MSG
+  Here are the rules:
 
+  Scissors cuts paper. Paper covers rock. Rock crushes lizard. Lizard poisons
+  Spock. Spock smashes scissors. Scissors decapitates lizard. Lizard eats paper.
+  Paper disproves Spock. Spock vaporizes rock. Rock crushes scissors.
+
+  First to #{ROUNDS_TO_WIN} wins is the ultimate winner!
+
+    MSG
   attr_accessor :human, :computer, :round_winner, :ultimate_winner
 
   def initialize
@@ -153,7 +151,12 @@ class RPSGame
   end
 
   def display_welcome_message
-    puts "Welcome to Rock, Paper, Scissors, Lizard, Spock!"
+    puts "Welcome to #{generate_game_name}!"
+    puts "\n"
+  end
+
+  def generate_game_name
+    Player::POSSIBLE_MOVES.join(', ')
   end
 
   def display_moves
@@ -164,11 +167,11 @@ class RPSGame
 
   def display_winner
     if round_winner == human
-      puts "** #{human} won! **"
+      puts "\n** #{human} won the round! **"
     elsif round_winner == computer
-      puts "** #{computer} won! **"
+      puts "\n** #{computer} won the round! **"
     else
-      puts "** It's a tie! **"
+      puts "\n** It's a tie! **"
     end
   end
 
@@ -183,8 +186,6 @@ class RPSGame
   end
 
   def display_score
-    clear_screen
-    puts Move::WHO_BEATS_WHO
     scoreboard = <<-MSG
               Score
     ** #{human}: #{human.score}; #{computer}: #{computer.score} **
@@ -194,13 +195,15 @@ class RPSGame
     puts scoreboard
   end
 
-  def generate_scoreboard
-    puts "+-"
-    puts
+  def display_game_info
+    clear_screen
+    display_welcome_message
+    puts RPSGame::RULES
+    display_score
   end
 
   def display_goodbye_message
-    puts "Thanks for playing Rock Paper Scissors Lizard Spock. Goodbye!"
+    puts "Thanks for playing #{generate_game_name}. Goodbye!"
   end
 
   def play_again?
@@ -254,7 +257,8 @@ class RPSGame
   end
 
   def display_ultimate_winner
-    puts "#{ultimate_winner} wins the match!"
+    puts "~~ #{ultimate_winner} wins the match! ~~"
+    puts "\n"
   end
 
   def end_of_round
@@ -268,7 +272,7 @@ class RPSGame
 
   def play
     loop do
-      display_score
+      display_game_info
       human.choose
       computer.choose
       end_of_round
