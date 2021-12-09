@@ -43,12 +43,13 @@ end
 class Player
   POSSIBLE_MOVES = [Rock, Paper, Scissors, Lizard, Spock]
 
-  attr_accessor :move, :name, :score
+  attr_accessor :move, :name, :score, :history
 
   def initialize
     @move = nil
     @name = set_name
     @score = 0
+    @history = []
   end
 
   def update_score
@@ -228,7 +229,7 @@ class RPSGame
 
   def continue?
     puts "\n"
-    puts "Please hit any key to continue!"
+    puts "Please hit any key to continue"
     answer = gets.chomp
     return true if answer
   end
@@ -264,12 +265,28 @@ class RPSGame
     puts "\n"
   end
 
+  def update_histories
+    human.history << human.move
+    computer.history << computer.move
+  end
+
+  def display_history
+    clear_screen
+    puts "Here is the history of your current session:"
+    human.history.each_with_index do |choice, idx|
+      puts "Round #{idx + 1}: #{human} chose #{choice}, #{computer} chose #{computer.history[idx]}"
+    end
+    continue?
+  end
+
   def end_of_round
     determine_winner
     display_moves
     display_winner
+    update_histories
     reset_round_winner
     update_ultimate_winner if ultimate_winner?
+    display_history
     continue?
   end
 
