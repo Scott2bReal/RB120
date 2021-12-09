@@ -10,10 +10,6 @@ class Move
   end
 end
 
-# To add a new move type, simply make a class for it, edit the inferior_moves
-# for all classes accordingly, include the class name in Player#possible_moves,
-# and edit RPSGame#RULES to reflect the new rules.
-
 class Rock < Move
   def inferior_moves
     [Scissors, Lizard]
@@ -68,7 +64,7 @@ class Human < Player
   def set_name
     n = ''
     loop do
-      puts "What's your name?"
+      puts "Welcome! Before we begin, what's your name?"
       n = gets.chomp
       break unless n.empty?
 
@@ -100,6 +96,8 @@ class Human < Player
 
     "#{name}, please select your move: #{choices.join(', ')}"
   end
+
+  private
 
   def valid_answer?(answer)
     (1..Player::POSSIBLE_MOVES.size).include?(answer.to_i)
@@ -256,7 +254,7 @@ class RPSGame
     false
   end
 
-  def determine_ultimate_winner
+  def update_ultimate_winner
     self.ultimate_winner = human if human.score == ROUNDS_TO_WIN
     self.ultimate_winner = computer if computer.score == ROUNDS_TO_WIN
   end
@@ -271,7 +269,7 @@ class RPSGame
     display_moves
     display_winner
     reset_round_winner
-    determine_ultimate_winner if ultimate_winner?
+    update_ultimate_winner if ultimate_winner?
     continue?
   end
 
