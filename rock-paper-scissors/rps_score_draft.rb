@@ -35,25 +35,12 @@ class Move
   end
 
   def >(other_move)
-    rock? && VALUES[rock].include?(other_move) ||
-      paper? && VALUES[paper].include?(other_move) ||
-      scissors? && VALUES[scissors].include?(other_move) ||
-      lizard? && VALUES[lizard].include?(other_move) ||
-      spock? && VALUES[spock].include?(other_move)
+    VALUES[value].include?(other_move.value)
   end
 
-  # These can be refactored
-  #def >(other_move)
-    #(rock? && other_move.scissors?) ||
-      #(paper? && other_move.rock?) ||
-      #(scissors? && other_move.paper?)
-  #end
-
-  #def <(other_move)
-    #(rock? && other_move.paper?) ||
-      #(paper? && other_move.scissors?) ||
-      #(scissors? && other_move.rock?)
-  #end
+  def <(other_move)
+    VALUES[other_move.value].include?(value)
+  end
 
   def to_s
     @value
@@ -95,7 +82,7 @@ class Human < Player
   def choose
     answer = nil
     loop do
-      puts "Please choose 1) rock, 2) paper, or 3) scissors:"
+      puts "Please choose 1) rock, 2) paper, 3) scissors, 4) lizard, 5) spock:"
       answer = gets.chomp
       break if ['1', '2', '3'].include?(answer)
 
@@ -111,6 +98,8 @@ class Human < Player
     when '1' then 'rock'
     when '2' then 'paper'
     when '3' then 'scissors'
+    when '4' then 'lizard'
+    when '5' then 'spock'
     end
   end
 end
@@ -127,7 +116,7 @@ class Computer < Player
 end
 
 class RPSGame
-  ROUNDS_TO_WIN = 10
+  ROUNDS_TO_WIN = 2
 
   attr_accessor :human, :computer, :round_winner, :ultimate_winner
 
@@ -161,7 +150,7 @@ class RPSGame
     if human.move > computer.move
       human.win!
       self.round_winner = human
-    elsif human.move < computer.move
+    elsif computer.move > human.move
       computer.win!
       self.round_winner = computer
     end
