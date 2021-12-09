@@ -103,7 +103,7 @@ class Computer < Player
 end
 
 class RPSGame
-  ROUNDS_TO_WIN = 2
+  ROUNDS_TO_WIN = 10
 
   attr_accessor :human, :computer, :round_winner, :ultimate_winner
 
@@ -185,7 +185,15 @@ class RPSGame
       player.score = 0
     end
 
+    self.ultimate_winner = nil
     play
+  end
+
+  def ultimate_winner?
+    if human.score == ROUNDS_TO_WIN || computer.score == ROUNDS_TO_WIN
+      return true
+    end
+    false
   end
 
   def ultimate_winner!
@@ -202,7 +210,7 @@ class RPSGame
     display_moves
     display_winner
     reset_round_winner!
-    ultimate_winner!
+    ultimate_winner! if ultimate_winner?
     continue?
   end
 
@@ -213,7 +221,7 @@ class RPSGame
       human.choose
       computer.choose
       end_of_round
-      break if ultimate_winner!
+      break if ultimate_winner?
     end
     display_ultimate_winner
     play_again? ? play_new_game! : display_goodbye_message
