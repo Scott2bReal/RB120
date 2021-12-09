@@ -146,12 +146,13 @@ class RPSGame
 
     MSG
 
-  attr_accessor :human, :computer, :round_winner, :ultimate_winner
+  attr_accessor :human, :computer, :round_winner, :ultimate_winner, :history
 
   def initialize
     @human = Human.new
     @computer = Computer.new
     @round_winner = nil
+    @history = []
   end
 
   def display_welcome_message
@@ -268,15 +269,25 @@ class RPSGame
   def update_histories
     human.history << human.move
     computer.history << computer.move
+    history << round_winner
   end
 
   def display_history
     clear_screen
     puts "Here is the history of your current session:"
     human.history.each_with_index do |choice, idx|
-      puts "Round #{idx + 1}: #{human} chose #{choice}, #{computer} chose #{computer.history[idx]}"
+      puts generate_history_entry(choice, idx)
     end
-    continue?
+  end
+
+  def generate_history_entry(choice, idx)
+    this_round_winner = history[idx].nil? ? "Tie" : history[idx]
+    message = <<-MSG
+
+Round #{idx}: #{human} chose #{choice}, #{computer} chose #{computer.history[idx]}. Winner: #{this_round_winner}
+    MSG
+
+    message
   end
 
   def end_of_round
