@@ -10,6 +10,10 @@ class Move
   end
 end
 
+# To add a new move type, simply make a class for it, edit the inferior_moves
+# for all classes accordingly, include the class name in Player#possible_moves,
+# and edit RPSGame#RULES to reflect the new rules.
+
 class Rock < Move
   def inferior_moves
     [Scissors, Lizard]
