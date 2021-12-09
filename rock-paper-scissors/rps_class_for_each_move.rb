@@ -51,7 +51,7 @@ class Player
     @score = 0
   end
 
-  def win!
+  def update_score
     self.score += 1
   end
 
@@ -64,7 +64,7 @@ class Human < Player
   def set_name
     n = ''
     loop do
-      puts "What's your name?"
+      puts "Welcome! Before we begin, what's your name?"
       n = gets.chomp
       break unless n.empty?
 
@@ -72,10 +72,6 @@ class Human < Player
     end
 
     n
-  end
-
-  def invalid_name_choice_message
-    "Sorry, must enter a value"
   end
 
   def choose
@@ -98,19 +94,25 @@ class Human < Player
       choices << "#{idx + 1}) #{choice}"
     end
 
-    puts "#{name}, please select your move: #{choices.join(', ')}"
+    "#{name}, please select your move: #{choices.join(', ')}"
   end
+
+  private
 
   def valid_answer?(answer)
     (1..Player::POSSIBLE_MOVES.size).include?(answer.to_i)
+  end
+
+  def translate_choice(answer)
+    Player::POSSIBLE_MOVES[answer.to_i - 1].new
   end
 
   def invalid_move_choice_message
     "Sorry, invalid choice. Please select using numbers"
   end
 
-  def translate_choice(answer)
-    Player::POSSIBLE_MOVES[answer.to_i - 1].new
+  def invalid_name_choice_message
+    "Sorry, must enter a value"
   end
 end
 
@@ -142,6 +144,7 @@ class RPSGame
   First to #{ROUNDS_TO_WIN} wins is the ultimate winner!
 
     MSG
+
   attr_accessor :human, :computer, :round_winner, :ultimate_winner
 
   def initialize
@@ -161,8 +164,8 @@ class RPSGame
 
   def display_moves
     puts "\n"
-    puts "#{human.name} chose #{human.move}"
-    puts "#{computer.name} chose #{computer.move}"
+    puts "#{human} chose #{human.move}"
+    puts "#{computer} chose #{computer.move}"
   end
 
   def display_winner
@@ -175,12 +178,12 @@ class RPSGame
     end
   end
 
-  def determine_winner!
+  def determine_winner
     if human.move.beats?(computer.move)
-      human.win!
+      human.update_score
       self.round_winner = human
     elsif computer.move.beats?(human.move)
-      computer.win!
+      computer.update_score
       self.round_winner = computer
     end
   end
@@ -219,7 +222,7 @@ class RPSGame
     false
   end
 
-  def reset_round_winner!
+  def reset_round_winner
     self.round_winner = nil
   end
 
@@ -234,7 +237,7 @@ class RPSGame
     system('clear')
   end
 
-  def play_new_game!
+  def play_new_game
     [human, computer].each do |player|
       player.score = 0
     end
@@ -251,7 +254,7 @@ class RPSGame
     false
   end
 
-  def ultimate_winner!
+  def update_ultimate_winner
     self.ultimate_winner = human if human.score == ROUNDS_TO_WIN
     self.ultimate_winner = computer if computer.score == ROUNDS_TO_WIN
   end
@@ -262,11 +265,11 @@ class RPSGame
   end
 
   def end_of_round
-    determine_winner!
+    determine_winner
     display_moves
     display_winner
-    reset_round_winner!
-    ultimate_winner! if ultimate_winner?
+    reset_round_winner
+    update_ultimate_winner if ultimate_winner?
     continue?
   end
 
@@ -279,7 +282,7 @@ class RPSGame
       break if ultimate_winner?
     end
     display_ultimate_winner
-    play_again? ? play_new_game! : display_goodbye_message
+    play_again? ? play_new_game : display_goodbye_message
   end
 end
 
