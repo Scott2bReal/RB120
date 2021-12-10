@@ -132,12 +132,15 @@ class Computer < Player
 end
 
 class Record
-  attr_reader :players, :outcome, :match_winner
+  @@number_of_records = 0
 
-  def initialize(players, outcome, match_winner)
+  def initialize(players, outcome, winner)
     @players = players
     @outcome = outcome
-    @match_winner = match_winner
+    @winner = winner
+    @match_winner_message = outcome_message
+    @@number_of_records += 1
+    @round_number = @@number_of_records
   end
 
   def to_s
@@ -146,9 +149,21 @@ class Record
 
   private
 
+  attr_reader :players, :outcome, :winner, :match_winner_message, :round_number
+
   def generate_entry
+    round_description = <<-MSG
+Round #{round_number}: #{players[0]} chose #{players[0].move}; #{players[1]} chose #{players[1].move}. Winner: #{outcome}
+
+    MSG
+
+    winner.nil? ? round_description : (round_description + match_winner_message)
+  end
+
+  def outcome_message
     <<-MSG
-    "#{players[0]} chose #{players[0].move}; #{players[1]} chose #{players[1].move}. Winner: #{outcome}" 
+Match Winner: #{winner}
+
     MSG
   end
 end
@@ -291,13 +306,37 @@ class RPSGame
     history << Record.new([human, computer], round_winner, ultimate_winner)
   end
 
+  def display_history?
+    puts display_history_prompt
+    answer = gets.chomp
+    return true if answer.downcase == 'y'
+    false
+  end
+
+  def display_history_prompt
+    <<-MSG
+
+Would you like to view the session history? Enter 'y' to view history, or press enter to continue.
+    MSG
+  end
+
+  def display_history
+    clear_screen
+    history.each do |entry|
+      puts entry
+    end
+
+    continue?
+  end
+
   def end_of_round
     determine_winner
     display_moves
     display_winner
-    reset_round_winner
     update_ultimate_winner if ultimate_winner?
-    continue?
+    update_history
+    display_history if display_history?
+    reset_round_winner
   end
 
   def play
