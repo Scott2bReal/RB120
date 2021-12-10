@@ -1,6 +1,4 @@
 class Move
-  attr_reader :value
-
   def to_s
     self.class.to_s.downcase
   end
