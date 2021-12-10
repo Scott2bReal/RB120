@@ -136,7 +136,7 @@ class Record
 
   def initialize(players, outcome, winner)
     @players = players
-    @outcome = outcome
+    @outcome = outcome.nil? ? 'Tie' : outcome
     @winner = winner
     @match_winner_message = outcome_message
     @@number_of_records += 1
@@ -322,6 +322,7 @@ Would you like to view the session history? Enter 'y' to view history, or press 
 
   def display_history
     clear_screen
+    puts "Current Session history:\n\n"
     history.each do |entry|
       puts entry
     end
