@@ -59,19 +59,6 @@ class Player
 end
 
 class Human < Player
-  def set_name
-    n = ''
-    loop do
-      puts "Welcome! Before we begin, what's your name?"
-      n = gets.chomp
-      break unless n.empty?
-
-      puts invalid_name_choice_message
-    end
-
-    n
-  end
-
   def choose
     answer = nil
     loop do
@@ -85,6 +72,21 @@ class Human < Player
     self.move = translate_choice(answer)
   end
 
+  private
+
+  def set_name
+    n = ''
+    loop do
+      puts "Welcome! Before we begin, what's your name?"
+      n = gets.chomp
+      break unless n.empty?
+
+      puts invalid_name_choice_message
+    end
+
+    n
+  end
+
   def move_choice_prompt
     choices = []
 
@@ -94,8 +96,6 @@ class Human < Player
 
     "#{name}, please select your move: #{choices.join(', ')}"
   end
-
-  private
 
   def valid_answer?(answer)
     (1..Player::POSSIBLE_MOVES.size).include?(answer.to_i)
@@ -115,17 +115,19 @@ class Human < Player
 end
 
 class Computer < Player
+  def choose
+    mv = Player::POSSIBLE_MOVES.sample
+    self.move = mv.new
+  end
+
+  private
+
   def set_name
     possible_names.sample
   end
 
   def possible_names
     ['R2D2', 'Hal', 'Chappie', 'Sonny', 'Number 5']
-  end
-
-  def choose
-    mv = Player::POSSIBLE_MOVES.sample
-    self.move = mv.new
   end
 end
 
@@ -179,6 +181,20 @@ class RPSGame
   First to #{ROUNDS_TO_WIN} wins is the ultimate winner!
 
     MSG
+
+  def play
+    loop do
+      display_game_info
+      human.choose
+      computer.choose
+      end_of_round
+      break if ultimate_winner?
+    end
+    display_ultimate_winner
+    play_again? ? play_new_game : display_goodbye_message
+  end
+
+  private
 
   attr_accessor :human, :computer, :round_winner, :ultimate_winner, :history
 
@@ -336,18 +352,6 @@ Would you like to view the session history? Enter 'y' to view history, or press 
     update_history
     display_history if display_history?
     reset_round_winner
-  end
-
-  def play
-    loop do
-      display_game_info
-      human.choose
-      computer.choose
-      end_of_round
-      break if ultimate_winner?
-    end
-    display_ultimate_winner
-    play_again? ? play_new_game : display_goodbye_message
   end
 end
 
