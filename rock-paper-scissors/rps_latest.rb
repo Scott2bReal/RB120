@@ -300,7 +300,7 @@ Would you like to view the session history? Press 'y' to view history, or press 
 
     message = <<-MSG
 
-Round #{idx}: #{human} chose #{choice}, #{computer} chose #{computer.history[idx]}. Winner: #{this_round_winner}
+Round #{idx + 1}: #{human} chose #{choice}, #{computer} chose #{computer.history[idx]}. Winner: #{this_round_winner}
     MSG
 
     message
