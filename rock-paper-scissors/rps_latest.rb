@@ -289,9 +289,11 @@ Would you like to view the session history? Press 'y' to view history, or press 
   def display_history
     clear_screen
     puts "Here is the history of your current session:"
+
     human.history.each_with_index do |choice, idx|
       puts generate_history_entry(choice, idx)
     end
+
     continue?
   end
 
