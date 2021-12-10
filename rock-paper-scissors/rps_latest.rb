@@ -146,6 +146,28 @@ class RPSGame
 
     MSG
 
+  def play
+    loop do
+      display_game_info
+      human.choose
+      computer.choose
+      end_of_round
+      break if ultimate_winner?
+    end
+    display_ultimate_winner
+    play_again? ? play_new_game : display_goodbye_message
+  end
+
+  def ultimate_winner?
+    if human.score == ROUNDS_TO_WIN || computer.score == ROUNDS_TO_WIN
+      return true
+    end
+
+    false
+  end
+
+  private
+
   attr_accessor :human, :computer, :round_winner, :ultimate_winner, :history
 
   def initialize
@@ -230,7 +252,7 @@ class RPSGame
 
   def continue?
     puts "\n"
-    puts "Please hit any key to continue"
+    puts "Please press enter to continue"
     answer = gets.chomp
     return true if answer
   end
@@ -246,14 +268,6 @@ class RPSGame
 
     self.ultimate_winner = nil
     play
-  end
-
-  def ultimate_winner?
-    if human.score == ROUNDS_TO_WIN || computer.score == ROUNDS_TO_WIN
-      return true
-    end
-
-    false
   end
 
   def update_ultimate_winner
@@ -282,7 +296,7 @@ class RPSGame
   def display_history_prompt
     <<-MSG
 
-Would you like to view the session history? Press 'y' to view history, or press any key to continue.
+Would you like to view the session history? Enter 'y' to view history, or press enter to continue.
     MSG
   end
 
@@ -316,18 +330,6 @@ Round #{idx + 1}: #{human} chose #{choice}, #{computer} chose #{computer.history
     reset_round_winner
     update_ultimate_winner if ultimate_winner?
     display_history if display_history?
-  end
-
-  def play
-    loop do
-      display_game_info
-      human.choose
-      computer.choose
-      end_of_round
-      break if ultimate_winner?
-    end
-    display_ultimate_winner
-    play_again? ? play_new_game : display_goodbye_message
   end
 end
 
