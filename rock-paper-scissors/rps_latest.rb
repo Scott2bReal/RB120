@@ -131,6 +131,28 @@ class Computer < Player
   end
 end
 
+class Record
+  attr_reader :players, :outcome, :match_winner
+
+  def initialize(players, outcome, match_winner)
+    @players = players
+    @outcome = outcome
+    @match_winner = match_winner
+  end
+
+  def to_s
+    generate_entry
+  end
+
+  private
+
+  def generate_entry
+    <<-MSG
+    "#{players[0]} chose #{players[0].move}; #{players[1]} chose #{players[1].move}. Winner: #{outcome}" 
+    MSG
+  end
+end
+
 class RPSGame
   ROUNDS_TO_WIN = 2
   RULES =
@@ -145,12 +167,13 @@ class RPSGame
 
     MSG
 
-  attr_accessor :human, :computer, :round_winner, :ultimate_winner
+  attr_accessor :human, :computer, :round_winner, :ultimate_winner, :history
 
   def initialize
     @human = Human.new
     @computer = Computer.new
     @round_winner = nil
+    @history = []
   end
 
   def display_welcome_message
@@ -262,6 +285,10 @@ class RPSGame
   def display_ultimate_winner
     puts "~~ #{ultimate_winner} wins the match! ~~"
     puts "\n"
+  end
+
+  def update_history
+    history << Record.new([human, computer], round_winner, ultimate_winner)
   end
 
   def end_of_round
