@@ -272,16 +272,32 @@ class RPSGame
     history << round_winner
   end
 
+  def display_history?
+    puts display_history_prompt
+    answer = gets.chomp
+    return true if answer.downcase == 'y'
+    false
+  end
+
+  def display_history_prompt
+    <<-MSG
+
+Would you like to view the session history? Press 'y' to view history, or press any key to continue.
+    MSG
+  end
+
   def display_history
     clear_screen
     puts "Here is the history of your current session:"
     human.history.each_with_index do |choice, idx|
       puts generate_history_entry(choice, idx)
     end
+    continue?
   end
 
   def generate_history_entry(choice, idx)
     this_round_winner = history[idx].nil? ? "Tie" : history[idx]
+
     message = <<-MSG
 
 Round #{idx}: #{human} chose #{choice}, #{computer} chose #{computer.history[idx]}. Winner: #{this_round_winner}
@@ -297,8 +313,7 @@ Round #{idx}: #{human} chose #{choice}, #{computer} chose #{computer.history[idx
     update_histories
     reset_round_winner
     update_ultimate_winner if ultimate_winner?
-    display_history
-    continue?
+    display_history if display_history?
   end
 
   def play
