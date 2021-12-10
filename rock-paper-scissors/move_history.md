@@ -12,3 +12,6 @@
 - Maybe move history can be stored in RPSGame? Might be easier/better than
   storing players' histories individually... No, I think storing each player's
   history in their own object is better.
+
+- Maybe make a new class `History`? I tried using instance variables and was
+  repeating the word history a lot...
