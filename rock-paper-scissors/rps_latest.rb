@@ -162,7 +162,7 @@ Round #{round_number}: #{players[0]} chose #{players[0].move}; #{players[1]} cho
 
   def outcome_message
     <<-MSG
-Match Winner: #{winner}
+*~ Match Winner: #{winner} ~*
 
     MSG
   end
