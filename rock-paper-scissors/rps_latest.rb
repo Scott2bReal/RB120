@@ -41,7 +41,7 @@ end
 class Player
   POSSIBLE_MOVES = [Rock, Paper, Scissors, Lizard, Spock]
 
-  attr_accessor :move, :name, :score
+  attr_reader :move, :name, :score
 
   def initialize
     @move = nil
@@ -49,13 +49,21 @@ class Player
     @score = 0
   end
 
-  def update_score
+  def reset_score
+    self.score = 0
+  end
+
+  def scores_a_point
     self.score += 1
   end
 
   def to_s
     name
   end
+
+  private
+
+  attr_writer :move, :name, :score
 end
 
 class Human < Player
@@ -134,11 +142,10 @@ end
 class Record
   @@number_of_records = 0
 
-  def initialize(players, outcome, winner)
-    @players = players
+  def initialize(players, outcome, match_winner)
+    @players = players # Array of the player objects
     @outcome = outcome.nil? ? 'Tie' : outcome
-    @winner = winner
-    @match_winner_message = outcome_message
+    @match_winner = match_winner
     @@number_of_records += 1
     @round_number = @@number_of_records
   end
@@ -149,20 +156,20 @@ class Record
 
   private
 
-  attr_reader :players, :outcome, :winner, :match_winner_message, :round_number
+  attr_reader :players, :outcome, :match_winner, :round_number
 
   def generate_entry
-    round_description = <<-MSG
+    round_descrip = <<-MSG
 Round #{round_number}: #{players[0]} chose #{players[0].move}; #{players[1]} chose #{players[1].move}. Winner: #{outcome}
 
     MSG
 
-    winner.nil? ? round_description : (round_description + match_winner_message)
+    match_winner.nil? ? round_descrip : (round_descrip + match_winner_message)
   end
 
-  def outcome_message
+  def match_winner_message
     <<-MSG
-*~ Match Winner: #{winner} ~*
+*~ Match Winner: #{match_winner} ~*
 
     MSG
   end
@@ -232,10 +239,10 @@ class RPSGame
 
   def determine_winner
     if human.move.beats?(computer.move)
-      human.update_score
+      human.scores_a_point
       self.round_winner = human
     elsif computer.move.beats?(human.move)
-      computer.update_score
+      computer.scores_a_point
       self.round_winner = computer
     end
   end
@@ -291,7 +298,7 @@ class RPSGame
 
   def play_new_game
     [human, computer].each do |player|
-      player.score = 0
+      player.reset_score
     end
 
     self.ultimate_winner = nil
