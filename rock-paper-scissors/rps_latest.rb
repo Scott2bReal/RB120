@@ -66,13 +66,33 @@ class Player
   attr_writer :move, :name, :score
 end
 
+module Joinable
+  def join_and(list)
+    if list.size > 1
+      "#{list[0..-2].join(', ')}, and #{list[-1]}"
+    elsif list.size == 1
+      list[0]
+    end
+  end
+
+  def join_or(list)
+    if list.size > 1
+      "#{list[0..-2].join(', ')}, or #{list[-1]}"
+    elsif list.size == 1
+      list[0]
+    end
+  end
+end
+
 class Human < Player
+  include Joinable
+
   def choose
     answer = nil
     loop do
       puts move_choice_prompt
       answer = gets.chomp
-      break if valid_answer?(answer)
+      break if valid_choice?(answer)
 
       puts invalid_move_choice_message
     end
@@ -107,10 +127,10 @@ class Human < Player
       choices << "#{idx + 1}) #{choice}"
     end
 
-    "#{name}, please select your move: #{choices.join(', ')}"
+    "#{name}, please select your move: #{join_or(choices)}"
   end
 
-  def valid_answer?(answer)
+  def valid_choice?(answer)
     (1..Player::POSSIBLE_MOVES.size).include?(answer.to_i)
   end
 
@@ -131,13 +151,11 @@ class Human < Player
       "Sorry, please enter a name"
     elsif Computer.possible_names.include?(n)
       <<~MSG
-        "Sorry, must enter a value which is not a computer's name! The computer team is #{join_and(Computer.possible_names)}"
+
+        Sorry, must enter a value which is not a computer's name! The computer team is #{join_and(Computer.possible_names)}
+
       MSG
     end
-  end
-
-  def join_and(list)
-    "#{list[0..-2].join(', ')}, and #{list[1]}"
   end
 end
 
