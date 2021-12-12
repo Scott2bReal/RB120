@@ -212,6 +212,16 @@ class RPSGame
     @history = []
   end
 
+  def end_of_round
+    determine_winner
+    display_moves
+    display_winner
+    update_ultimate_winner if ultimate_winner?
+    update_history
+    display_history if display_history?
+    reset_round_winner
+  end
+
   def display_welcome_message
     puts "Welcome to #{generate_game_name}!"
     puts "\n"
@@ -297,10 +307,7 @@ class RPSGame
   end
 
   def play_new_game
-    [human, computer].each do |player|
-      player.reset_score
-    end
-
+    [human, computer].each(&:reset_score)
     self.ultimate_winner = nil
     play
   end
@@ -349,16 +356,6 @@ Would you like to view the session history? Enter 'y' to view history, or press 
     end
 
     continue?
-  end
-
-  def end_of_round
-    determine_winner
-    display_moves
-    display_winner
-    update_ultimate_winner if ultimate_winner?
-    update_history
-    display_history if display_history?
-    reset_round_winner
   end
 end
 
