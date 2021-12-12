@@ -122,13 +122,46 @@ class Human < Player
   end
 end
 
+module Personable
+  def only_rock
+    Rock
+  end
+
+  def lizard_or_spock
+    [Lizard, Spock].sample
+  end
+
+  def mostly_scissors
+    [Scissors, Scissors, Scissors, Rock].sample
+  end
+
+  def random
+    Player::POSSIBLE_MOVES.sample
+  end
+
+  def only_spock
+    Spock
+  end
+end
+
 class Computer < Player
+  include Personable
+
   def choose
-    mv = Player::POSSIBLE_MOVES.sample
-    self.move = mv.new
+    self.move = choose_ai.new
   end
 
   private
+
+  def choose_ai
+    case name
+    when 'R2D2' then only_rock
+    when 'Hal' then lizard_or_spock
+    when 'Chappie' then mostly_scissors
+    when 'Sonny' then random
+    when 'Number 5' then only_spock
+    end
+  end
 
   def set_name
     possible_names.sample
