@@ -87,12 +87,17 @@ class Human < Player
     loop do
       puts welcome_message
       n = gets.chomp.strip
-      break unless n.empty?
+      break if valid_name?(n)
 
-      puts invalid_name_choice_message
+      puts invalid_name_choice_message(n)
     end
 
     n
+  end
+
+  def valid_name?(n)
+    return false if n.empty? || Computer.possible_names.include?(n)
+    true
   end
 
   def move_choice_prompt
@@ -121,8 +126,18 @@ class Human < Player
     "Sorry, invalid choice. Please select using numbers"
   end
 
-  def invalid_name_choice_message
-    "Sorry, must enter a value"
+  def invalid_name_choice_message(n)
+    if n.empty?
+      "Sorry, please enter a name"
+    elsif Computer.possible_names.include?(n)
+      <<~MSG
+        "Sorry, must enter a value which is not a computer's name! The computer team is #{join_and(Computer.possible_names)}"
+      MSG
+    end
+  end
+
+  def join_and(list)
+    "#{list[0..-2].join(', ')}, and #{list[1]}"
   end
 end
 
@@ -151,6 +166,12 @@ end
 class Computer < Player
   include Personable
 
+  @@possible_names = ['R2D2', 'Hal', 'Chappie', 'Sonny', 'Number 5']
+
+  def self.possible_names
+    @@possible_names
+  end
+
   def choose
     self.move = choose_ai.new
   end
@@ -168,11 +189,7 @@ class Computer < Player
   end
 
   def set_name
-    possible_names.sample
-  end
-
-  def possible_names
-    ['R2D2', 'Hal', 'Chappie', 'Sonny', 'Number 5']
+    @@possible_names.sample
   end
 end
 
@@ -196,8 +213,8 @@ class Record
   attr_reader :players, :outcome, :match_winner, :round_number
 
   def generate_entry
-    round_descrip = <<-MSG
-Round #{round_number}: #{players[0]} chose #{players[0].move}; #{players[1]} chose #{players[1].move}. Winner: #{outcome}
+    round_descrip = <<~MSG
+      Round #{round_number}: #{players[0]} chose #{players[0].move}; #{players[1]} chose #{players[1].move}. Winner: #{outcome}
 
     MSG
 
@@ -205,8 +222,8 @@ Round #{round_number}: #{players[0]} chose #{players[0].move}; #{players[1]} cho
   end
 
   def match_winner_message
-    <<-MSG
-*~ Match Winner: #{match_winner} ~*
+    <<~MSG
+      *~ Match Winner: #{match_winner} ~*
 
     MSG
   end
@@ -263,9 +280,9 @@ module Displayable
   end
 
   def display_history_prompt
-    <<-MSG
+    <<~MSG
 
-Would you like to view the session history? Enter 'y' to view history, or press enter to continue.
+      Would you like to view the session history? Enter 'y' to view history, or press enter to continue.
     MSG
   end
 
