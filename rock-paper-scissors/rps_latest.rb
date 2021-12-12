@@ -159,10 +159,10 @@ class Computer < Player
 
   def choose_ai
     case name
-    when 'R2D2' then only_rock
-    when 'Hal' then lizard_or_spock
-    when 'Chappie' then mostly_scissors
-    when 'Sonny' then random
+    when 'R2D2'     then only_rock
+    when 'Hal'      then lizard_or_spock
+    when 'Chappie'  then mostly_scissors
+    when 'Sonny'    then random
     when 'Number 5' then only_spock
     end
   end
@@ -289,6 +289,44 @@ Would you like to view the session history? Enter 'y' to view history, or press 
   end
 end
 
+class Round
+  include Displayable
+
+  def initialize(human, computer)
+    @round_winner = 'Tie'
+    @human = human
+    @computer = computer
+  end
+
+  attr_reader :human, :computer, :round_winner
+
+  def play
+    human.choose
+    computer.choose
+    self.round_winner = determine_winner
+    update_scores
+    display_moves
+    display_winner
+  end
+
+  private
+
+  attr_writer :round_winner
+
+  def determine_winner
+    return human    if human.move.beats?(computer.move)
+    return computer if computer.move.beats?(human.move)
+    'Tie'
+  end
+
+  def update_scores
+    case round_winner
+    when human    then human.scores_a_point
+    when computer then computer.scores_a_point
+    end
+  end
+end
+
 class RPSGame
   include Displayable
 
@@ -305,12 +343,19 @@ class RPSGame
 
     MSG
 
+  def initialize
+    @human = Human.new
+    @computer = Computer.new
+    @history = []
+  end
+
   def play
     loop do
       display_game_info
-      human.choose
-      computer.choose
-      end_of_round
+      play_a_round
+      update_ultimate_winner if ultimate_winner?
+      update_history
+      display_history if display_history?
       break if ultimate_winner?
     end
     display_ultimate_winner
@@ -321,35 +366,14 @@ class RPSGame
 
   attr_accessor :human, :computer, :round_winner, :ultimate_winner, :history
 
-  def initialize
-    @human = Human.new
-    @computer = Computer.new
-    @round_winner = nil
-    @history = []
-  end
-
-  def end_of_round
-    determine_winner
-    display_moves
-    display_winner
-    update_ultimate_winner if ultimate_winner?
-    update_history
-    display_history if display_history?
-    reset_round_winner
+  def play_a_round
+    round = Round.new(human, computer)
+    round.play
+    self.round_winner = round.round_winner
   end
 
   def generate_game_name
     Player::POSSIBLE_MOVES.join(', ')
-  end
-
-  def determine_winner
-    if human.move.beats?(computer.move)
-      human.scores_a_point
-      self.round_winner = human
-    elsif computer.move.beats?(human.move)
-      computer.scores_a_point
-      self.round_winner = computer
-    end
   end
 
   def play_again?
@@ -363,10 +387,6 @@ class RPSGame
 
     return true if answer == 'y'
     false
-  end
-
-  def reset_round_winner
-    self.round_winner = nil
   end
 
   def continue?
