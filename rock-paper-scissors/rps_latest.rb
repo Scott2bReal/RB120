@@ -273,13 +273,13 @@ module Displayable
   end
 
   def display_history?
-    puts display_history_prompt
+    puts history_prompt
     answer = gets.chomp
     return true if answer.downcase == 'y'
     false
   end
 
-  def display_history_prompt
+  def history_prompt
     <<~MSG
 
       Would you like to view the session history? Enter 'y' to view history, or press enter to continue.
@@ -310,7 +310,6 @@ class Round
   include Displayable
 
   def initialize(human, computer)
-    @round_winner = 'Tie'
     @human = human
     @computer = computer
   end
@@ -347,7 +346,7 @@ end
 class RPSGame
   include Displayable
 
-  ROUNDS_TO_WIN = 2
+  GOAL_SCORE = 2
   RULES =
     <<-MSG
   Here are the rules:
@@ -356,7 +355,7 @@ class RPSGame
   Spock. Spock smashes scissors. Scissors decapitates lizard. Lizard eats paper.
   Paper disproves Spock. Spock vaporizes rock. Rock crushes scissors.
 
-  First to #{ROUNDS_TO_WIN} wins is the ultimate winner!
+  First to #{GOAL_SCORE} wins is the ultimate winner!
 
     MSG
 
@@ -420,16 +419,14 @@ class RPSGame
   end
 
   def ultimate_winner?
-    if human.score == ROUNDS_TO_WIN || computer.score == ROUNDS_TO_WIN
-      return true
-    end
+    return true if human.score == GOAL_SCORE || computer.score == GOAL_SCORE
 
     false
   end
 
   def update_ultimate_winner
-    self.ultimate_winner = human if human.score == ROUNDS_TO_WIN
-    self.ultimate_winner = computer if computer.score == ROUNDS_TO_WIN
+    self.ultimate_winner = human if human.score == GOAL_SCORE
+    self.ultimate_winner = computer if computer.score == GOAL_SCORE
   end
 
   def update_history
