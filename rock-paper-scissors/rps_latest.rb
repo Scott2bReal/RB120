@@ -85,8 +85,8 @@ class Human < Player
   def set_name
     n = ''
     loop do
-      puts "Welcome! Before we begin, what's your name?"
-      n = gets.chomp
+      puts welcome_message
+      n = gets.chomp.strip
       break unless n.empty?
 
       puts invalid_name_choice_message
@@ -111,6 +111,10 @@ class Human < Player
 
   def translate_choice(answer)
     Player::POSSIBLE_MOVES[answer.to_i - 1].new
+  end
+
+  def welcome_message
+    "Welcome! Before we begin, what's your name?"
   end
 
   def invalid_move_choice_message
@@ -208,7 +212,86 @@ Round #{round_number}: #{players[0]} chose #{players[0].move}; #{players[1]} cho
   end
 end
 
+module Displayable
+  def clear_screen
+    system('clear')
+  end
+
+  def display_game_info
+    clear_screen
+    display_welcome_message
+    puts RPSGame::RULES
+    display_score
+  end
+
+  def display_welcome_message
+    puts "Welcome to #{generate_game_name}!"
+    puts "\n"
+  end
+
+  def display_score
+    scoreboard = <<-MSG
+              Score
+    ** #{human}: #{human.score}; #{computer}: #{computer.score} **
+
+    MSG
+
+    puts scoreboard
+  end
+
+  def display_moves
+    puts "\n"
+    puts "#{human} chose #{human.move}"
+    puts "#{computer} chose #{computer.move}"
+  end
+
+  def display_winner
+    if round_winner == human
+      puts "\n** #{human} won the round! **"
+    elsif round_winner == computer
+      puts "\n** #{computer} won the round! **"
+    else
+      puts "\n** It's a tie! **"
+    end
+  end
+
+  def display_history?
+    puts display_history_prompt
+    answer = gets.chomp
+    return true if answer.downcase == 'y'
+    false
+  end
+
+  def display_history_prompt
+    <<-MSG
+
+Would you like to view the session history? Enter 'y' to view history, or press enter to continue.
+    MSG
+  end
+
+  def display_history
+    clear_screen
+    puts "Current Session history:\n\n"
+    history.each do |entry|
+      puts entry
+    end
+
+    continue?
+  end
+
+  def display_ultimate_winner
+    puts "~~ #{ultimate_winner} wins the match! ~~"
+    puts "\n"
+  end
+
+  def display_goodbye_message
+    puts "Thanks for playing #{generate_game_name}. Goodbye!"
+  end
+end
+
 class RPSGame
+  include Displayable
+
   ROUNDS_TO_WIN = 2
   RULES =
     <<-MSG
@@ -231,7 +314,7 @@ class RPSGame
       break if ultimate_winner?
     end
     display_ultimate_winner
-    play_again? ? play_new_game : display_goodbye_message
+    play_again? ? reset_and_play_new_game : display_goodbye_message
   end
 
   private
@@ -255,29 +338,8 @@ class RPSGame
     reset_round_winner
   end
 
-  def display_welcome_message
-    puts "Welcome to #{generate_game_name}!"
-    puts "\n"
-  end
-
   def generate_game_name
     Player::POSSIBLE_MOVES.join(', ')
-  end
-
-  def display_moves
-    puts "\n"
-    puts "#{human} chose #{human.move}"
-    puts "#{computer} chose #{computer.move}"
-  end
-
-  def display_winner
-    if round_winner == human
-      puts "\n** #{human} won the round! **"
-    elsif round_winner == computer
-      puts "\n** #{computer} won the round! **"
-    else
-      puts "\n** It's a tie! **"
-    end
   end
 
   def determine_winner
@@ -288,27 +350,6 @@ class RPSGame
       computer.scores_a_point
       self.round_winner = computer
     end
-  end
-
-  def display_score
-    scoreboard = <<-MSG
-              Score
-    ** #{human}: #{human.score}; #{computer}: #{computer.score} **
-
-    MSG
-
-    puts scoreboard
-  end
-
-  def display_game_info
-    clear_screen
-    display_welcome_message
-    puts RPSGame::RULES
-    display_score
-  end
-
-  def display_goodbye_message
-    puts "Thanks for playing #{generate_game_name}. Goodbye!"
   end
 
   def play_again?
@@ -335,11 +376,7 @@ class RPSGame
     return true if answer
   end
 
-  def clear_screen
-    system('clear')
-  end
-
-  def play_new_game
+  def reset_and_play_new_game
     [human, computer].each(&:reset_score)
     self.ultimate_winner = nil
     play
@@ -358,37 +395,8 @@ class RPSGame
     self.ultimate_winner = computer if computer.score == ROUNDS_TO_WIN
   end
 
-  def display_ultimate_winner
-    puts "~~ #{ultimate_winner} wins the match! ~~"
-    puts "\n"
-  end
-
   def update_history
     history << Record.new([human, computer], round_winner, ultimate_winner)
-  end
-
-  def display_history?
-    puts display_history_prompt
-    answer = gets.chomp
-    return true if answer.downcase == 'y'
-    false
-  end
-
-  def display_history_prompt
-    <<-MSG
-
-Would you like to view the session history? Enter 'y' to view history, or press enter to continue.
-    MSG
-  end
-
-  def display_history
-    clear_screen
-    puts "Current Session history:\n\n"
-    history.each do |entry|
-      puts entry
-    end
-
-    continue?
   end
 end
 
