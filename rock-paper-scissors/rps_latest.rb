@@ -152,7 +152,7 @@ class Human < Player
     elsif Computer.possible_names.include?(n)
       <<~MSG
 
-        Sorry, must enter a value which is not a computer's name! The computer team is #{join_and(Computer.possible_names)}
+        Please enter a name which is not a computer's name. The computer team is #{join_and(Computer.possible_names)}
 
       MSG
     end
@@ -443,7 +443,7 @@ class RPSGame
   end
 
   def update_ultimate_winner
-    self.ultimate_winner = human if human.score == GOAL_SCORE
+    self.ultimate_winner = human    if human.score == GOAL_SCORE
     self.ultimate_winner = computer if computer.score == GOAL_SCORE
   end
 
