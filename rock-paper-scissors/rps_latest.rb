@@ -364,7 +364,7 @@ end
 class RPSGame
   include Displayable
 
-  GOAL_SCORE = 2
+  GOAL_SCORE = 10
   RULES =
     <<-MSG
   Here are the rules:
