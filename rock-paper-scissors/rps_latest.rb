@@ -412,6 +412,7 @@ class RPSGame
 
   def play_again?
     answer = nil
+
     loop do
       puts "Would you like to play again? (y/n)"
       answer = gets.chomp
