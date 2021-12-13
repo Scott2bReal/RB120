@@ -293,14 +293,14 @@ module Displayable
   def display_history?
     puts history_prompt
     answer = gets.chomp
-    return true if answer.downcase == 'y'
+    return true if answer.downcase == 'h'
     false
   end
 
   def history_prompt
     <<~MSG
 
-      Would you like to view the session history? Enter 'y' to view history, or press enter to continue.
+      Would you like to view the session history? Enter 'h' to view history, or press enter to continue.
     MSG
   end
 
