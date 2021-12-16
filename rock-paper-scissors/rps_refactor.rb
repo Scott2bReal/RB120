@@ -396,8 +396,8 @@ class RPSGame
     loop do
       puts "Would you like to play again? (y/n)"
       answer = gets.chomp
-      break if ['y', 'n'].include?(answer)
-      puts "Sorry must be y or n."
+      break if ['y', 'n', 'yes', 'no'].include?(answer)
+      puts "Sorry must be yes or no (y/n)."
     end
 
     return true if answer == 'y'
