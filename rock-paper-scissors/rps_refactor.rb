@@ -113,7 +113,7 @@ class Human < Player
   end
 
   def valid_choice?(answer)
-    (1..Player::POSSIBLE_MOVES.size).include?(answer.to_i)
+    (1..Player::POSSIBLE_MOVES.size).to_a.include?(answer.to_f)
   end
 
   def translate_choice(answer)
@@ -125,7 +125,11 @@ class Human < Player
   end
 
   def invalid_move_choice_message
-    "Sorry, invalid choice. Please select using numbers"
+    <<~MSG
+
+    Sorry, invalid choice. Please select using #{join_list((1..Player::POSSIBLE_MOVES.size).to_a, 'or')}
+
+    MSG
   end
 
   def invalid_name_choice_message(n)
