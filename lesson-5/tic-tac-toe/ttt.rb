@@ -119,6 +119,31 @@ class TTTGame
   HUMAN_MARKER = 'X'
   COMPUTER_MARKER = 'O'
 
+  def play
+    clear
+    display_welcome_message
+
+    loop do
+      display_board
+
+      loop do
+        player_moves
+        break if board.someone_won? || board.full?
+
+        clear_screen_and_display_board if human_turn?
+      end
+      display_result
+      break unless play_again?
+
+      reset
+      display_play_again_message
+    end
+
+    display_goodbye_message
+  end
+
+  private
+
   attr_reader :board, :human, :computer
   attr_accessor :current_player
 
@@ -195,6 +220,7 @@ class TTTGame
 
   def reset
     board.reset
+    self.current_player = human
     clear
   end
 
@@ -209,30 +235,11 @@ class TTTGame
 
   def player_moves
     current_player == human ? human_moves : computer_moves
+    switch_current_player
   end
 
-  def play
-    clear
-    display_welcome_message
-
-    loop do
-      display_board
-
-      loop do
-        player_moves
-        switch_current_player
-        break if board.someone_won? || board.full?
-
-        clear_screen_and_display_board
-      end
-      display_result
-      break unless play_again?
-
-      reset
-      display_play_again_message
-    end
-
-    display_goodbye_message
+  def human_turn?
+    current_player == human
   end
 end
 
