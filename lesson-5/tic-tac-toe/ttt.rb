@@ -59,6 +59,24 @@ class Board
   def reset
     (1..9).each { |key| @squares[key] = Square.new }
   end
+
+  def draw
+    puts <<-MSG
+    
+        |     |
+     #{get_square_at(1)}  |  #{get_square_at(2)}  |  #{get_square_at(3)}
+        |     |
+    ----+-----+-----
+        |     |
+     #{get_square_at(4)}  |  #{get_square_at(5)}  |  #{get_square_at(6)}
+        |     |
+    ----+-----+-----
+        |     |
+     #{get_square_at(7)}  |  #{get_square_at(8)}  |  #{get_square_at(9)}
+        |     |
+    
+    MSG
+  end
 end
 
 class Square
@@ -111,22 +129,12 @@ class TTTGame
   end
 
   def display_board
+    display_piece_assignment_message
+    board.draw
+  end
+
+  def display_piece_assignment_message
     puts "You're a #{human.marker}. Computer is a #{computer.marker}"
-    puts <<-MSG
-    
-        |     |
-     #{board.get_square_at(1)}  |  #{board.get_square_at(2)}  |  #{board.get_square_at(3)}
-        |     |
-    ----+-----+-----
-        |     |
-     #{board.get_square_at(4)}  |  #{board.get_square_at(5)}  |  #{board.get_square_at(6)}
-        |     |
-    ----+-----+-----
-        |     |
-     #{board.get_square_at(7)}  |  #{board.get_square_at(8)}  |  #{board.get_square_at(9)}
-        |     |
-    
-    MSG
   end
 
   def clear_screen_and_display_board
