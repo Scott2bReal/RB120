@@ -1,5 +1,11 @@
 require 'pry'
 
+module Displayable
+  def clear
+    system 'clear'
+  end
+end
+
 class Board
   WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
                   [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # cols
@@ -82,6 +88,8 @@ class Player
 end
 
 class TTTGame
+  include Displayable
+
   HUMAN_MARKER = 'X'
   COMPUTER_MARKER = 'O'
 
@@ -102,8 +110,8 @@ class TTTGame
     puts "Thanks for playing Tic Tac Toe! Goodbye!"
   end
 
-  def display_board(clear = true)
-    system 'clear' if clear
+  def display_board(clear_screen: true)
+    clear if clear_screen
     puts "You're a #{human.marker}. Computer is a #{computer.marker}"
     puts <<-MSG
     
@@ -163,11 +171,11 @@ class TTTGame
   end
 
   def play
-    system 'clear'
+    clear
     display_welcome_message
 
     loop do
-      display_board(false)
+      display_board(clear_screen: false)
 
       loop do
         human_moves
@@ -181,7 +189,7 @@ class TTTGame
       display_result
       break unless play_again?
       board.reset
-      system 'clear'
+      clear
       puts "Let's play again!"
       puts ''
     end
