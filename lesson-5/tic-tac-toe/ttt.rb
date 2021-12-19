@@ -2,7 +2,7 @@ module Joinable
   def join_list(list, delim, last_word) # list should be an array
     case list.size
     when 0 then ''
-    when 1 then list[0]
+    when 1 then list.first
     when 2 then "#{list.first} #{last_word} #{list.last}"
     else
       "#{list[0..-2].join(delim)}#{delim}#{last_word} #{list[-1]}"
