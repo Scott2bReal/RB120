@@ -1,4 +1,14 @@
-require 'pry'
+module Joinable
+  def join_list(list, delim, last_word) # list should be an array
+    case list.size
+    when 0 then ''
+    when 1 then list[0]
+    when 2 then "#{list.first} #{last_word} #{list.last}"
+    else
+      "#{list[0..-2].join(delim)}#{delim}#{last_word} #{list[-1]}"
+    end
+  end
+end
 
 module Displayable
   def clear
@@ -115,7 +125,7 @@ class Player
 end
 
 class TTTGame
-  include Displayable
+  include Displayable, Joinable
 
   HUMAN_MARKER = 'X'
   COMPUTER_MARKER = 'O'
@@ -174,7 +184,7 @@ class TTTGame
   end
 
   def human_moves
-    puts "Choose a square (#{board.unmarked_keys.join(', ')}): "
+    puts "Choose a square (#{join_list(board.unmarked_keys, ', ', 'or')}): "
     square = nil
     loop do
       square = gets.chomp.to_i
