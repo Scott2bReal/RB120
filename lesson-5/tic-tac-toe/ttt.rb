@@ -11,13 +11,13 @@ class Board
                   [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # cols
                   [[1, 5, 9], [3, 5, 7]]              # diagonals
 
+  def []=(key, marker)
+    set_square_at(key, marker)
+  end
+
   def initialize
     @squares = {}
     reset
-  end
-
-  def get_square_at(key)
-    @squares[key]
   end
 
   def set_square_at(key, marker)
@@ -64,15 +64,15 @@ class Board
     puts <<-MSG
     
         |     |
-     #{get_square_at(1)}  |  #{get_square_at(2)}  |  #{get_square_at(3)}
+     #{@squares[1]}  |  #{@squares[2]}  |  #{@squares[3]}
         |     |
     ----+-----+-----
         |     |
-     #{get_square_at(4)}  |  #{get_square_at(5)}  |  #{get_square_at(6)}
+     #{@squares[4]}  |  #{@squares[5]}  |  #{@squares[6]}
         |     |
     ----+-----+-----
         |     |
-     #{get_square_at(7)}  |  #{get_square_at(8)}  |  #{get_square_at(9)}
+     #{@squares[7]}  |  #{@squares[8]}  |  #{@squares[9]}
         |     |
     
     MSG
@@ -151,11 +151,12 @@ class TTTGame
       puts "Sorry, that's not a valid choice."
     end
 
-    board.set_square_at(square, human.marker)
+    board[square] = human.marker
   end
 
   def computer_moves
-    board.set_square_at(board.unmarked_keys.sample, computer.marker)
+    square = board.unmarked_keys.sample
+    board[square] = computer.marker
   end
 
   def display_result
