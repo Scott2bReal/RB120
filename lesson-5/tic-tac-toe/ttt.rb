@@ -70,6 +70,7 @@ class Board
   def reset
     (1..9).each { |key| @squares[key] = Square.new }
   end
+
   private
 
   def set_square_at(key, marker)
@@ -119,6 +120,7 @@ class TTTGame
   HUMAN_MARKER = 'X'
   COMPUTER_MARKER = 'O'
 
+  # rubocop:disable Metrics/MethodLength
   def play
     clear
     display_welcome_message
@@ -129,18 +131,18 @@ class TTTGame
       loop do
         player_moves
         break if board.someone_won? || board.full?
-
         clear_screen_and_display_board if human_turn?
       end
+
       display_result
       break unless play_again?
-
       reset
       display_play_again_message
     end
 
     display_goodbye_message
   end
+  # rubocop:enable Metrics/MethodLength
 
   private
 
