@@ -120,29 +120,12 @@ class TTTGame
   HUMAN_MARKER = 'X'
   COMPUTER_MARKER = 'O'
 
-  # rubocop:disable Metrics/MethodLength
   def play
     clear
     display_welcome_message
-
-    loop do
-      display_board
-
-      loop do
-        player_moves
-        break if board.someone_won? || board.full?
-        clear_screen_and_display_board if human_turn?
-      end
-
-      display_result
-      break unless play_again?
-      reset
-      display_play_again_message
-    end
-
+    main_game
     display_goodbye_message
   end
-  # rubocop:enable Metrics/MethodLength
 
   private
 
@@ -154,6 +137,17 @@ class TTTGame
     @human = Player.new(HUMAN_MARKER)
     @computer = Player.new(COMPUTER_MARKER)
     @current_player = @human
+  end
+
+  def main_game
+    loop do
+      display_board
+      player_moves
+      display_result
+      break unless play_again?
+      reset
+      display_play_again_message
+    end
   end
 
   def display_welcome_message
@@ -236,8 +230,12 @@ class TTTGame
   end
 
   def player_moves
-    current_player == human ? human_moves : computer_moves
-    switch_current_player
+    loop do
+      current_player == human ? human_moves : computer_moves
+      switch_current_player
+      break if board.someone_won? || board.full?
+      clear_screen_and_display_board if human_turn?
+    end
   end
 
   def human_turn?
