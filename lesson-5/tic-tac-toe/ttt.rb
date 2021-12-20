@@ -129,11 +129,23 @@ class Square
   end
 end
 
-Player = Struct.new(:marker)
+class Player
+  attr_accessor :marker, :score
+
+  def initialize(marker)
+    @marker = marker
+    @score = 0
+  end
+
+  def scores_a_point
+    self.score += 1
+  end
+end
 
 class TTTGame
   include Displayable, Joinable
 
+  GOAL_SCORE = 5
   HUMAN_MARKER = 'X'
   COMPUTER_MARKER = 'O'
 
@@ -166,7 +178,7 @@ class TTTGame
       display_play_again_message
     end
   end
-  
+
   def display_welcome_message
     puts "Welcome to Tic Tac Toe!"
     puts ""
