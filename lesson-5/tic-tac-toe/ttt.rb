@@ -152,6 +152,7 @@ class TTTGame
   def play
     clear
     display_welcome_message
+    display_explanation
     main_game
     display_goodbye_message
   end
@@ -184,17 +185,26 @@ class TTTGame
     puts ""
   end
 
+  def display_explanation
+    puts "First to 5 wins is the big winner!"
+    puts ""
+  end
+
   def display_goodbye_message
     puts "Thanks for playing Tic Tac Toe! Goodbye!"
   end
 
   def display_board
-    display_piece_assignment_message
+    display_score_and_marker_assignment
     board.draw
   end
 
-  def display_piece_assignment_message
-    puts "You: #{human.marker}. Computer: #{computer.marker}"
+  def display_score_and_marker_assignment
+    puts <<~MSG
+    The score is: *~ You (X): #{human.score}; Computer (O): #{computer.score} ~*
+
+    MSG
+    # puts "You: #{human.marker}. Computer: #{computer.marker}"
   end
 
   def clear_screen_and_display_board
