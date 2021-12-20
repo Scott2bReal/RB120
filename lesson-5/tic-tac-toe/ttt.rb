@@ -14,6 +14,11 @@ module Displayable
   def clear
     system 'clear'
   end
+
+  def continue?
+    puts "Please press enter to continue!"
+    gets
+  end
 end
 
 class Board
@@ -65,15 +70,25 @@ class Board
   end
 
   # returns winning marker or nil
+  # def winning_marker
+    # WINNING_LINES.each do |line|
+      # markers = line.map { |key| @squares[key].marker }
+
+      # next if any_unmarked?(markers)
+
+      # return markers.first if winning_line?(markers)
+    # end
+
+    # nil
+  # end
+
   def winning_marker
     WINNING_LINES.each do |line|
-      markers = line.map { |key| @squares[key].marker }
-
-      next if any_unmarked?(markers)
-
-      return markers.first if winning_line?(markers)
+      squares = @squares.values_at(*line)
+      if three_identical_markers?(squares)
+        return squares.first.marker
+      end
     end
-
     nil
   end
 
@@ -83,13 +98,19 @@ class Board
 
   private
 
+  def three_identical_markers?(squares)
+    markers = squares.select(&:marked?).collect(&:marker)
+    return false if markers.size != 3
+    markers.min == markers.max
+  end
+
   def set_square_at(key, marker)
     @squares[key].marker = marker
   end
 
   def any_unmarked?(arr)
     # unmarked_keys.include?(@squares[*arr])
-    arr.any?(Square::INITIAL_MARKER)
+    arr.any?(&:unmarked?)
   end
 
   def winning_line?(line)
@@ -111,18 +132,16 @@ class Square
     @marker
   end
 
+  def marked?
+    marker != INITIAL_MARKER
+  end
+
   def unmarked?
     marker == INITIAL_MARKER
   end
 end
 
-class Player
-  attr_reader :marker
-
-  def initialize(marker)
-    @marker = marker
-  end
-end
+Player = Struct.new(:marker)
 
 class TTTGame
   include Displayable, Joinable
@@ -160,8 +179,25 @@ class TTTGame
     end
   end
 
+  def assign_human_marker
+    loop do
+      puts "Please enter what marker you would like to use (default is X)"
+      answer = gets.chomp.strip
+      break unless answer == COMPUTER_MARKER || answer == INITIAL_MARKER
+
+      case answer
+      when COMPUTER_MARKER
+        puts "Sorry, the computer will be using #{COMPUTER_MARKER}! Please choose another marker"
+      when ''
+        puts "Please enter any character other than #{COMPUTER_MARKER}"
+      end
+    end
+
+    answer
+  end
+
   def display_welcome_message
-    puts "Welcome to Tic Tac Toe"
+    puts "Welcome to Tic Tac Toe!"
     puts ""
   end
 
@@ -175,7 +211,7 @@ class TTTGame
   end
 
   def display_piece_assignment_message
-    puts "You're a #{human.marker}. Computer is a #{computer.marker}"
+    puts "You: #{human.marker}. Computer: #{computer.marker}"
   end
 
   def clear_screen_and_display_board
