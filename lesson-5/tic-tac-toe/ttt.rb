@@ -15,8 +15,9 @@ module Displayable
     system 'clear'
   end
 
-  def continue?
-    puts "Please press enter to continue!"
+  def enter_to_continue
+    puts ""
+    puts "Please press enter to continue"
     gets
   end
 end
@@ -174,10 +175,10 @@ class TTTGame
       display_board
       player_moves
       display_result
+      enter_to_continue
       # break unless play_again?
       break if ultimate_winner?
       reset
-      display_play_again_message
     end
   end
 
