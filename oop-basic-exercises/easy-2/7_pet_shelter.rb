@@ -25,7 +25,8 @@ shelter.print_adoptions
 puts "#{phanson.name} has #{phanson.number_of_pets} adopted pets."
 puts "#{bholmes.name} has #{bholmes.number_of_pets} adopted pets."
 
-Write the classes and methods that will be necessary to make this code run, and print the following output:
+Write the classes and methods that will be necessary to make this code run, and
+print the following output:
 
 P Hanson has adopted the following pets:
 a cat named Butterscotch
@@ -41,7 +42,8 @@ a fish named Chester
 P Hanson has 3 adopted pets.
 B Holmes has 4 adopted pets.
 
-The order of the output does not matter, so long as all of the information is presented.
+The order of the output does not matter, so long as all of the information is
+presented.
 
 Algorithm/Mental Model:
   - Pets look like they need at least name and animal attributes,

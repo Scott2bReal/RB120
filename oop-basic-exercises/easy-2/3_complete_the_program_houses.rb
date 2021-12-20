@@ -22,7 +22,8 @@ and this output:
 Home 1 is cheaper
 Home 2 is more expensive
 
-Modify the House class so that the above program will work. You are permitted to define only one new method in House.
+Modify the House class so that the above program will work. You are permitted to
+define only one new method in House.
 
 =end
 
@@ -39,7 +40,7 @@ class House
   end
 
   def compare(other_home)
-    self.price > other_home.price
+    price > other_home.price
   end
 end
 

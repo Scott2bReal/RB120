@@ -6,6 +6,7 @@ class Expander
   end
 
   def to_s
+    # self.expand(3)
     expand(3)
   end
 
@@ -14,6 +15,7 @@ class Expander
   attr_reader :string
 
   def expand(n)
+    # @string * n
     string * n
   end
 end
