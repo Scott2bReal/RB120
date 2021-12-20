@@ -1,3 +1,5 @@
+require 'pry'
+
 module Joinable
   def join_list(list, delim, last_word) # list should be an array
     case list.size
@@ -15,14 +17,32 @@ module Displayable
     system 'clear'
   end
 
-  def buffer_line
+  def blank_line
     puts ""
   end
 
+  def buffer_line
+    puts '-----'
+  end
+
   def enter_to_continue
-    buffer_line
+    blank_line
     puts "Please press enter to continue"
     gets
+  end
+
+  def display_scoreboard(score1, score2)
+    puts <<-MSG
+
+    *-----+-----*
+    |     |     |
+    |  #{score1}  |  #{score2}  |
+    |     |     |
+    *-----+-----*
+
+    #{buffer_line}
+    
+    MSG
   end
 end
 
@@ -30,6 +50,18 @@ class Board
   WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
                   [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # cols
                   [[1, 5, 9], [3, 5, 7]]              # diagonals
+
+  DANGER_SQUARES = {
+    1 => [[2, 3], [4, 7], [5, 9]],
+    2 => [[1, 3], [5, 8]],
+    3 => [[1, 2], [6, 9], [5, 7]],
+    4 => [[1, 7], [5, 6]],
+    5 => [[1, 9], [3, 7], [4, 6], [2, 8]],
+    6 => [[4, 5], [3, 9]],
+    7 => [[8, 9], [1, 4], [3, 5]],
+    8 => [[7, 9], [2, 5]],
+    9 => [[7, 8], [3, 6], [1, 5]]
+  }
 
   def []=(key, marker)
     set_square_at(key, marker)
@@ -77,6 +109,7 @@ class Board
   # returns winning marker or nil
   def winning_marker
     WINNING_LINES.each do |line|
+      binding.pry
       squares = @squares.values_at(*line)
       if three_identical_markers?(squares)
         return squares.first.marker
@@ -213,8 +246,8 @@ class TTTGame
   end
 
   def computer_moves
-    square = board.unmarked_keys.sample
-    board[square] = computer.marker
+    # square = board.unmarked_keys.sample
+    # board[square] = computer.marker
   end
 
   def ultimate_winner?
@@ -234,32 +267,33 @@ class TTTGame
 
   def display_human_ultimate_winner_message
     puts "Congratulations, you are the ultimate winner!"
-    buffer_line
+    blank_line
   end
 
   def display_computer_ultimate_winner_message
     puts "The computer is the ultimate winner!"
-    buffer_line
+    blank_line
   end
 
   def display_game_info
     display_welcome_message
     display_explanation
-    display_score_and_marker_assignment
+    # display_score_and_marker_assignment
+    display_scoreboard(human.score, computer.score)
   end
 
   def display_welcome_message
     puts "Welcome to Tic Tac Toe!"
-    buffer_line
+    blank_line
   end
 
   def display_explanation
     puts "First to 5 wins is the big winner!"
-    buffer_line
+    blank_line
   end
 
   def display_goodbye_message
-    buffer_line
+    blank_line
     puts "Thanks for playing Tic Tac Toe! Goodbye!"
   end
 
