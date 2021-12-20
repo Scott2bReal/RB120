@@ -180,6 +180,33 @@ class TTTGame
     end
   end
 
+  def player_moves
+    loop do
+      current_player == human ? human_moves : computer_moves
+      break if board.someone_won? || board.full?
+      switch_current_player
+      clear_screen_and_display_board if human_turn?
+    end
+    current_player.scores_a_point if board.someone_won?
+  end
+
+  def human_moves
+    puts "Choose a square (#{join_list(board.unmarked_keys, ', ', 'or')}): "
+    square = nil
+    loop do
+      square = gets.chomp.to_i
+      break if board.unmarked_keys.include?(square)
+      puts "Sorry, that's not a valid choice."
+    end
+
+    board[square] = human.marker
+  end
+
+  def computer_moves
+    square = board.unmarked_keys.sample
+    board[square] = computer.marker
+  end
+
   def display_welcome_message
     puts "Welcome to Tic Tac Toe!"
     puts ""
@@ -204,29 +231,11 @@ class TTTGame
     The score is: *~ You (X): #{human.score}; Computer (O): #{computer.score} ~*
 
     MSG
-    # puts "You: #{human.marker}. Computer: #{computer.marker}"
   end
 
   def clear_screen_and_display_board
     clear
     display_board
-  end
-
-  def human_moves
-    puts "Choose a square (#{join_list(board.unmarked_keys, ', ', 'or')}): "
-    square = nil
-    loop do
-      square = gets.chomp.to_i
-      break if board.unmarked_keys.include?(square)
-      puts "Sorry, that's not a valid choice."
-    end
-
-    board[square] = human.marker
-  end
-
-  def computer_moves
-    square = board.unmarked_keys.sample
-    board[square] = computer.marker
   end
 
   def display_result
@@ -266,15 +275,6 @@ class TTTGame
 
   def switch_current_player
     self.current_player = current_player == human ? computer : human
-  end
-
-  def player_moves
-    loop do
-      current_player == human ? human_moves : computer_moves
-      switch_current_player
-      break if board.someone_won? || board.full?
-      clear_screen_and_display_board if human_turn?
-    end
   end
 
   def human_turn?
