@@ -152,8 +152,6 @@ class TTTGame
 
   def play
     clear
-    display_welcome_message
-    display_explanation
     main_game
     display_goodbye_message
   end
@@ -216,6 +214,12 @@ class TTTGame
     false
   end
 
+  def display_game_info
+    display_welcome_message
+    display_explanation
+    display_score_and_marker_assignment
+  end
+
   def display_welcome_message
     puts "Welcome to Tic Tac Toe!"
     puts ""
@@ -231,7 +235,7 @@ class TTTGame
   end
 
   def display_board
-    display_score_and_marker_assignment
+    display_game_info
     board.draw
   end
 
