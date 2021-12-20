@@ -150,13 +150,19 @@ end
 class TTTGame
   include Displayable, Joinable
 
-  GOAL_SCORE = 5
+  GOAL_SCORE = 2
   HUMAN_MARKER = 'X'
   COMPUTER_MARKER = 'O'
 
   def play
-    clear
-    main_game
+    loop do
+      clear
+      main_game
+      display_ultimate_winner_message
+      break unless play_again?
+      reset_game
+    end
+
     display_goodbye_message
   end
 
@@ -218,6 +224,24 @@ class TTTGame
     false
   end
 
+  def display_ultimate_winner_message
+    case human.score
+    when GOAL_SCORE then display_human_ultimate_winner_message
+    else
+      display_computer_ultimate_winner_message
+    end
+  end
+
+  def display_human_ultimate_winner_message
+    puts "Congratulations, you are the ultimate winner!"
+    buffer_line
+  end
+
+  def display_computer_ultimate_winner_message
+    puts "The computer is the ultimate winner!"
+    buffer_line
+  end
+
   def display_game_info
     display_welcome_message
     display_explanation
@@ -235,6 +259,7 @@ class TTTGame
   end
 
   def display_goodbye_message
+    buffer_line
     puts "Thanks for playing Tic Tac Toe! Goodbye!"
   end
 
@@ -296,6 +321,13 @@ class TTTGame
 
   def human_turn?
     current_player == human
+  end
+
+  def reset_game
+    board.reset
+    [human, computer].each do |player|
+      player.score = 0
+    end
   end
 end
 
