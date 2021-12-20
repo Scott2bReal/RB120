@@ -15,8 +15,12 @@ module Displayable
     system 'clear'
   end
 
-  def enter_to_continue
+  def buffer_line
     puts ""
+  end
+
+  def enter_to_continue
+    buffer_line
     puts "Please press enter to continue"
     gets
   end
@@ -222,12 +226,12 @@ class TTTGame
 
   def display_welcome_message
     puts "Welcome to Tic Tac Toe!"
-    puts ""
+    buffer_line
   end
 
   def display_explanation
     puts "First to 5 wins is the big winner!"
-    puts ""
+    buffer_line
   end
 
   def display_goodbye_message
