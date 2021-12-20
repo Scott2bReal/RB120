@@ -174,7 +174,8 @@ class TTTGame
       display_board
       player_moves
       display_result
-      break unless play_again?
+      # break unless play_again?
+      break if ultimate_winner?
       reset
       display_play_again_message
     end
@@ -205,6 +206,13 @@ class TTTGame
   def computer_moves
     square = board.unmarked_keys.sample
     board[square] = computer.marker
+  end
+
+  def ultimate_winner?
+    [human, computer].each do |player|
+      return true if player.score == GOAL_SCORE
+    end
+    false
   end
 
   def display_welcome_message
