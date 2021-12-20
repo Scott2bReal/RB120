@@ -70,18 +70,6 @@ class Board
   end
 
   # returns winning marker or nil
-  # def winning_marker
-    # WINNING_LINES.each do |line|
-      # markers = line.map { |key| @squares[key].marker }
-
-      # next if any_unmarked?(markers)
-
-      # return markers.first if winning_line?(markers)
-    # end
-
-    # nil
-  # end
-
   def winning_marker
     WINNING_LINES.each do |line|
       squares = @squares.values_at(*line)
@@ -178,24 +166,7 @@ class TTTGame
       display_play_again_message
     end
   end
-
-  def assign_human_marker
-    loop do
-      puts "Please enter what marker you would like to use (default is X)"
-      answer = gets.chomp.strip
-      break unless answer == COMPUTER_MARKER || answer == INITIAL_MARKER
-
-      case answer
-      when COMPUTER_MARKER
-        puts "Sorry, the computer will be using #{COMPUTER_MARKER}! Please choose another marker"
-      when ''
-        puts "Please enter any character other than #{COMPUTER_MARKER}"
-      end
-    end
-
-    answer
-  end
-
+  
   def display_welcome_message
     puts "Welcome to Tic Tac Toe!"
     puts ""
