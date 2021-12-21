@@ -1,5 +1,3 @@
-require 'pry'
-
 module Joinable
   def join_list(list, delim, last_word) # list should be an array
     case list.size
@@ -42,19 +40,23 @@ module Displayable
     puts "Sorry, that isn't a valid choice"
   end
 
-  def display_human_ultimate_winner_message
-    puts "*~ Congratulations, you are the ultimate winner! ~*"
+  def display_human_ultimate_winner_message(name)
+    puts "*~ Congratulations #{name}, you are the ultimate winner! ~*"
     blank_line
   end
 
-  def display_computer_ultimate_winner_message
-    puts ">>> The computer is the ultimate winner! <<<"
+  def display_computer_ultimate_winner_message(name)
+    puts ">>> #{name} is the ultimate winner! <<<"
     blank_line
   end
 
   def display_play_again_message
     puts "Let's play again!"
     blank_line
+  end
+
+  def display_game_description
+    puts self.class::GAME_DESCRIPTION
   end
 end
 
@@ -132,6 +134,27 @@ class Board
       ----+-----+-----
           |     |
        #{@squares[7]}  |  #{@squares[8]}  |  #{@squares[9]}
+          |     |
+    
+
+    MSG
+  end
+
+  def draw_with_positions
+    puts <<-MSG
+
+           Board
+    
+          |     |
+       1  |  2  |  3
+          |     |
+      ----+-----+-----
+          |     |
+       4  |  5  |  6
+          |     |
+      ----+-----+-----
+          |     |
+       7  |  8  |  9
           |     |
     
 
@@ -234,6 +257,15 @@ end
 class TTTGame
   include Displayable, Joinable, Promptable
 
+  GAME_DESCRIPTION = <<~MSG
+  ---
+  Tic Tac Toe is a 2 player game played on a 3x3 board. Each player takes a turn
+  and marks a square on the board. First player to reach 3 squares in a row,
+  including diagonals, wins. If all 9 squares are marked and no player has 3
+  squares in a row, then the game is a tie.   
+  ---
+
+  MSG
   GOAL_SCORE = 2
   MARKERS = ['X', 'O']
   DANGER_SQUARES = {
@@ -297,22 +329,43 @@ class TTTGame
     current_player.scores_a_point if board.someone_won?
   end
 
+  def display_human_choice_prompt
+    puts "\nChoose a square (#{join_list(board.unmarked_keys, ', ', 'or')}): "
+    puts "\nFor game info, type 'info'"
+  end
+
   def human_moves
-    puts "Choose a square (#{join_list(board.unmarked_keys, ', ', 'or')}): "
-    answer = nil
-
-    loop do
-      answer = gets.chomp
-      break if valid_human_square_choice?(answer)
-
-      display_generic_invalid_choice_message
-    end
-
+    answer = human_choice
     board[answer.to_i] = human.marker
   end
 
+  def human_choice
+    loop do
+      display_human_choice_prompt
+      answer = gets.chomp
+
+      if answer == 'info'
+        display_instructions
+        next
+      end
+
+      return answer if valid_human_square_choice?(answer)
+
+      display_generic_invalid_choice_message
+    end
+  end
+
+  def display_instructions
+    clear
+    display_game_description
+    blank_line
+    board.draw_with_positions
+    enter_to_continue
+    clear_screen_and_display_board
+  end
+
   def valid_human_square_choice?(answer)
-    return false unless answer.to_f == answer.to_i
+    return false unless answer.to_s.length == 1
     return true if board.unmarked_keys.include?(answer.to_i)
   end
 
@@ -409,9 +462,9 @@ class TTTGame
   # Would have used a ternary but method names are too long to fit on one line!
   def display_ultimate_winner_message
     case human.score
-    when GOAL_SCORE then display_human_ultimate_winner_message
+    when GOAL_SCORE then display_human_ultimate_winner_message(human.name)
     else
-      display_computer_ultimate_winner_message
+      display_computer_ultimate_winner_message(computer.name)
     end
   end
 
