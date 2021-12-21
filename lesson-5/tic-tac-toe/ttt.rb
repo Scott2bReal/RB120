@@ -122,7 +122,7 @@ class Board
   end
 
   def reset
-    (1..9).each { |key| @squares[key] = Square.new }
+    (1..9).each { |key| @squares[key] = Square.new(key) }
   end
 
   private
@@ -154,11 +154,8 @@ class Square
   attr_accessor :marker
   attr_reader :position
 
-  @@position = 0
-
-  def initialize
-    @@position += 1
-    @position = @@position
+  def initialize(position)
+    @position = position
     @marker = position
   end
 
@@ -415,6 +412,7 @@ class TTTGame
 
   def reset_game
     board.reset
+    Square.reset
     [human, computer].each do |player|
       player.score = 0
     end
