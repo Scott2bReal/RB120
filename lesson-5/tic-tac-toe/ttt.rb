@@ -298,14 +298,25 @@ class TTTGame
   end
 
   def computer_moves
-    if try_offense    # makes move if can win
-    elsif try_defense # makes move to block player from winning
+    computer_move = try_offense_then_defense
+
+    if computer_move
+      board[computer_move] = computer.marker
     elsif board.unmarked_keys.include?(5)
       board[5] = computer.marker
     else
       square = board.unmarked_keys.sample
       board[square] = computer.marker
     end
+  end
+
+  def try_offense_then_defense # returns advantageous move or nil
+    [computer, human].each do |player|
+      at_risk = at_risk_squares(squares_marked_by(player))
+      return at_risk.sample unless at_risk.empty?
+    end
+
+    nil
   end
 
   def at_risk_squares(player_squares)
@@ -329,15 +340,15 @@ class TTTGame
     marked_squares
   end
 
-  def try_defense # returns a move or nil
-    at_risk = at_risk_squares(squares_marked_by(human))
-    board[at_risk.first] = computer.marker unless at_risk.empty?
-  end
+  # def try_defense # returns a move or nil
+  #   at_risk = at_risk_squares(squares_marked_by(human))
+  #   board[at_risk.first] = computer.marker unless at_risk.empty?
+  # end
 
-  def try_offense # returns a move or nil
-    at_risk = at_risk_squares(squares_marked_by(computer))
-    board[at_risk.first] = computer.marker unless at_risk.empty?
-  end
+  # def try_offense # returns a move or nil
+  #   at_risk = at_risk_squares(squares_marked_by(computer))
+  #   board[at_risk.first] = computer.marker unless at_risk.empty?
+  # end
 
   def player_choose_marker
     answer = nil
