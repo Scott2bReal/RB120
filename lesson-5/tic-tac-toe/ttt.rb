@@ -33,14 +33,13 @@ module Displayable
 
   def display_scoreboard(score1, score2)
     puts <<-MSG
+           Score
 
-    *-----+-----*
-    |     |     |
-    |  #{score1}  |  #{score2}  |
-    |     |     |
-    *-----+-----*
-
-    #{buffer_line}
+       *-----+-----*
+       |     |     |
+  You  |  #{score1}  |  #{score2}  |  Computer
+       |     |     |
+       *-----+-----*
     
     MSG
   end
@@ -81,18 +80,20 @@ class Board
 
   def draw
     puts <<-MSG
+
+           Board
     
-        |     |
-     #{@squares[1]}  |  #{@squares[2]}  |  #{@squares[3]}
-        |     |
-    ----+-----+-----
-        |     |
-     #{@squares[4]}  |  #{@squares[5]}  |  #{@squares[6]}
-        |     |
-    ----+-----+-----
-        |     |
-     #{@squares[7]}  |  #{@squares[8]}  |  #{@squares[9]}
-        |     |
+          |     |
+       #{@squares[1]}  |  #{@squares[2]}  |  #{@squares[3]}
+          |     |
+      ----+-----+-----
+          |     |
+       #{@squares[4]}  |  #{@squares[5]}  |  #{@squares[6]}
+          |     |
+      ----+-----+-----
+          |     |
+       #{@squares[7]}  |  #{@squares[8]}  |  #{@squares[9]}
+          |     |
     
     MSG
   end
