@@ -81,6 +81,20 @@ module Promptable
     puts "Please press enter to continue"
     gets
   end
+
+  def player_choose_name
+    answer = nil
+
+    loop do
+      puts "Please enter your name:"
+      answer = gets.chomp
+      break if valid_player_name?(answer) # define in class
+
+      puts invalid_name_message           # define in class
+    end
+
+    answer
+  end
 end
 
 class Board
@@ -201,11 +215,15 @@ class Square
 end
 
 class Player
-  attr_accessor :marker, :score
+  COMPUTER_NAMES = ['Hal', 'Chappie', 'Sonny', 'R2D2', 'C3P0']
 
-  def initialize(marker)
+  attr_accessor :marker, :score
+  attr_reader :name
+
+  def initialize(marker, name=COMPUTER_NAMES.sample)
     @marker = marker
     @score = 0
+    @name = name
   end
 
   def scores_a_point
@@ -250,7 +268,7 @@ class TTTGame
 
   def initialize
     @board = Board.new
-    @human = Player.new(player_choose_marker)
+    @human = Player.new(player_choose_marker, player_choose_name)
     @computer = Player.new(computer_choose_marker)
     @current_player = choose_first_turn
   end
@@ -465,6 +483,25 @@ class TTTGame
     [human, computer].each do |player|
       player.score = 0
     end
+  end
+
+  def valid_player_name?(answer)
+    computer_names = Player::COMPUTER_NAMES.map(&:downcase)
+    return false if computer_names.include?(answer.downcase)
+    return false if answer.strip.empty?
+    true
+  end
+
+  def invalid_name_message
+    <<~MSG
+    
+    I'm sorry, that is not a valid name.
+    Please enter a name which is not on the computer team, or empty
+
+    Computer Team:
+    #{join_list(Player::COMPUTER_NAMES, ', ', 'and')}
+    
+    MSG
   end
 end
 
