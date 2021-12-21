@@ -104,6 +104,8 @@ class Board
                   [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # cols
                   [[1, 5, 9], [3, 5, 7]]              # diagonals
 
+  CENTER_SQUARE = 5
+
   attr_reader :squares
 
   def []=(key, marker)
@@ -374,8 +376,8 @@ class TTTGame
 
     if computer_move
       board[computer_move] = computer.marker
-    elsif board.unmarked_keys.include?(5)
-      board[5] = computer.marker
+    elsif board.unmarked_keys.include?(Board::CENTER_SQUARE)
+      board[Board::CENTER_SQUARE] = computer.marker
     else
       square = board.unmarked_keys.sample
       board[square] = computer.marker
