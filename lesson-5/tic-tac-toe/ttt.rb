@@ -203,7 +203,6 @@ class Board
   end
 
   def any_unmarked?(arr)
-    # unmarked_keys.include?(@squares[*arr])
     arr.any?(&:unmarked?)
   end
 
@@ -367,8 +366,11 @@ class TTTGame
   end
 
   def valid_human_square_choice?(answer)
-    return false unless answer.to_s.length == 1
-    return true if board.unmarked_keys.include?(answer.to_i)
+    unmarked = board.unmarked_keys.map(&:to_s)
+
+    return false unless unmarked.include?(answer)
+
+    true
   end
 
   def computer_moves
@@ -411,15 +413,18 @@ class TTTGame
     (1..9).each do |key|
       marked_squares << key if board[key] == player.marker
     end
+
     marked_squares
   end
 
   def player_choose_marker
     answer = nil
+
     puts "\nWelcome to Tic Tac Toe! Which marker do you want to use? (X or O)"
     loop do
       answer = gets.chomp
       break if MARKERS.include?(answer.upcase)
+
       puts "\nI'm sorry, that is not a valid marker. Please select X or O"
     end
 
