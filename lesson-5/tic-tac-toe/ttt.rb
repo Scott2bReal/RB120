@@ -215,8 +215,7 @@ class TTTGame
   include Displayable, Joinable
 
   GOAL_SCORE = 2
-  HUMAN_MARKER = 'X'
-  COMPUTER_MARKER = 'O'
+  MARKERS = ['X', 'O']
   DANGER_SQUARES = {
     1 => [[2, 3], [4, 7], [5, 9]],
     2 => [[1, 3], [5, 8]],
@@ -248,8 +247,8 @@ class TTTGame
 
   def initialize
     @board = Board.new
-    @human = Player.new(HUMAN_MARKER)
-    @computer = Player.new(COMPUTER_MARKER)
+    @human = Player.new(player_choose_marker)
+    @computer = Player.new(computer_choose_marker)
     @current_player = @human
   end
 
@@ -331,6 +330,22 @@ class TTTGame
   def try_offense # returns a move or nil
     at_risk = at_risk_squares(squares_marked_by(computer))
     board[at_risk.first] = computer.marker unless at_risk.empty?
+  end
+
+  def player_choose_marker
+    answer = nil
+    puts "\nWelcome to Tic Tac Toe! Which marker do you want to use? (X or O)"
+    loop do
+      answer = gets.chomp
+      break if MARKERS.include?(answer.upcase)
+      puts "\nI'm sorry, that is not a valid marker. Please select X or O"
+    end
+
+    answer.upcase
+  end
+
+  def computer_choose_marker
+    MARKERS.reject { |marker| marker == human.marker }.first
   end
 
   def ultimate_winner?
