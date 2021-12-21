@@ -67,7 +67,7 @@ module Displayable
   end
 
   def display_computer_ultimate_winner_message
-    puts "OOO The computer is the ultimate winner! OOO"
+    puts ">>> The computer is the ultimate winner! <<<"
     blank_line
   end
 end
@@ -137,7 +137,7 @@ class Board
   end
 
   def reset
-    (1..9).each { |key| @squares[key] = Square.new(key) }
+    (1..9).each { |key| @squares[key] = Square.new }
   end
 
   private
@@ -167,10 +167,8 @@ class Square
   INITIAL_MARKER = ' '
 
   attr_accessor :marker
-  attr_reader :position
 
-  def initialize(position)
-    @position = position
+  def initialize
     @marker = INITIAL_MARKER
   end
 
