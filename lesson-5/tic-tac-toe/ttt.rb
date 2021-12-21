@@ -44,24 +44,25 @@ module Displayable
     
     MSG
   end
+
+  def display_generic_invalid_choice_message
+    puts "Sorry, that isn't a valid choice"
+  end
+
+  def yes_or_no_question
+    loop do
+      puts "Would you like to play again? (y/n)"
+      answer = gets.chomp.downcase
+      break if %w(y n).include?(answer)
+      puts "Sorry, must be y or n"
+    end
+  end
 end
 
 class Board
   WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
                   [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # cols
                   [[1, 5, 9], [3, 5, 7]]              # diagonals
-
-  DANGER_SQUARES = {
-    1 => [[2, 3], [4, 7], [5, 9]],
-    2 => [[1, 3], [5, 8]],
-    3 => [[1, 2], [6, 9], [5, 7]],
-    4 => [[1, 7], [5, 6]],
-    5 => [[1, 9], [3, 7], [4, 6], [2, 8]],
-    6 => [[4, 5], [3, 9]],
-    7 => [[8, 9], [1, 4], [3, 5]],
-    8 => [[7, 9], [2, 5]],
-    9 => [[7, 8], [3, 6], [1, 5]]
-  }
 
   def []=(key, marker)
     set_square_at(key, marker)
@@ -109,7 +110,6 @@ class Board
   # returns winning marker or nil
   def winning_marker
     WINNING_LINES.each do |line|
-      binding.pry
       squares = @squares.values_at(*line)
       if three_identical_markers?(squares)
         return squares.first.marker
@@ -154,6 +154,10 @@ class Square
     @marker = marker
   end
 
+  def ==(other_square)
+    marker == other_square.marker
+  end
+
   def to_s
     @marker
   end
@@ -186,6 +190,17 @@ class TTTGame
   GOAL_SCORE = 2
   HUMAN_MARKER = 'X'
   COMPUTER_MARKER = 'O'
+  DANGER_SQUARES = {
+    1 => [[2, 3], [4, 7], [5, 9]],
+    2 => [[1, 3], [5, 8]],
+    3 => [[1, 2], [6, 9], [5, 7]],
+    4 => [[1, 7], [5, 6]],
+    5 => [[1, 9], [3, 7], [4, 6], [2, 8]],
+    6 => [[4, 5], [3, 9]],
+    7 => [[8, 9], [1, 4], [3, 5]],
+    8 => [[7, 9], [2, 5]],
+    9 => [[7, 8], [3, 6], [1, 5]]
+  }
 
   def play
     loop do
@@ -246,8 +261,8 @@ class TTTGame
   end
 
   def computer_moves
-    # square = board.unmarked_keys.sample
-    # board[square] = computer.marker
+    square = board.unmarked_keys.sample
+    board[square] = computer.marker
   end
 
   def ultimate_winner?
@@ -328,13 +343,7 @@ class TTTGame
 
   def play_again?
     answer = nil
-    loop do
-      puts "Would you like to play again? (y/n)"
-      answer = gets.chomp.downcase
-      break if %w(y n).include?(answer)
-      puts "Sorry, must be y or n"
-    end
-
+    yes_or_no_question
     answer == 'y'
   end
 
