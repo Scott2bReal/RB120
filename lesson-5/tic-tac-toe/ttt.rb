@@ -250,7 +250,6 @@ class TTTGame
     @board = Board.new
     @human = Player.new(player_choose_marker)
     @computer = Player.new(computer_choose_marker)
-    # @current_player = @human
     @current_player = choose_first_turn
   end
 
@@ -339,16 +338,6 @@ class TTTGame
     end
     marked_squares
   end
-
-  # def try_defense # returns a move or nil
-  #   at_risk = at_risk_squares(squares_marked_by(human))
-  #   board[at_risk.first] = computer.marker unless at_risk.empty?
-  # end
-
-  # def try_offense # returns a move or nil
-  #   at_risk = at_risk_squares(squares_marked_by(computer))
-  #   board[at_risk.first] = computer.marker unless at_risk.empty?
-  # end
 
   def player_choose_marker
     answer = nil
