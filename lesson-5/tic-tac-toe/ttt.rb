@@ -109,6 +109,7 @@ class Board
        #{@squares[7]}  |  #{@squares[8]}  |  #{@squares[9]}
           |     |
     
+
     MSG
   end
 
