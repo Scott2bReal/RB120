@@ -280,8 +280,10 @@ class TTTGame
   end
 
   def computer_moves
-    if try_offense
-    elsif try_defense
+    if try_offense    # makes move if can win
+    elsif try_defense # makes move to block player from winning
+    elsif board.unmarked_keys.include?(5)
+      board[5] = COMPUTER_MARKER
     else
       square = board.unmarked_keys.sample
       board[square] = computer.marker
