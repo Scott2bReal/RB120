@@ -280,16 +280,21 @@ class TTTGame
 
   def human_moves
     puts "Choose a square (#{join_list(board.unmarked_keys, ', ', 'or')}): "
-    square = nil
+    answer = nil
 
     loop do
-      square = gets.chomp.to_i
-      break if board.unmarked_keys.include?(square)
+      answer = gets.chomp
+      break if valid_human_square_choice?(answer)
 
       display_generic_invalid_choice_message
     end
 
-    board[square] = human.marker
+    board[answer.to_i] = human.marker
+  end
+
+  def valid_human_square_choice?(answer)
+    return false unless answer.to_f == answer.to_i
+    return true if board.unmarked_keys.include?(answer.to_i)
   end
 
   def computer_moves
