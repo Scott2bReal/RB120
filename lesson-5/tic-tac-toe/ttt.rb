@@ -52,9 +52,19 @@ module Displayable
     loop do
       puts "Would you like to play again? (y/n)"
       answer = gets.chomp.downcase
-      break if %w(y n).include?(answer)
+      break if %w(y n yes no).include?(answer)
       puts "Sorry, must be y or n"
     end
+  end
+
+  def display_human_ultimate_winner_message
+    puts "*~ Congratulations, you are the ultimate winner! ~*"
+    blank_line
+  end
+
+  def display_computer_ultimate_winner_message
+    puts "OOO The computer is the ultimate winner! OOO"
+    blank_line
   end
 end
 
@@ -322,16 +332,6 @@ class TTTGame
     else
       display_computer_ultimate_winner_message
     end
-  end
-
-  def display_human_ultimate_winner_message
-    puts "Congratulations, you are the ultimate winner!"
-    blank_line
-  end
-
-  def display_computer_ultimate_winner_message
-    puts "The computer is the ultimate winner!"
-    blank_line
   end
 
   def display_game_info
