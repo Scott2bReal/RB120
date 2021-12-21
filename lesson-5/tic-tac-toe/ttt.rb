@@ -48,7 +48,7 @@ module Displayable
     puts "Sorry, that isn't a valid choice"
   end
 
-  def yes_or_no_question?(message)
+  def yes_or_no_question(message)
     answer = nil
 
     loop do
@@ -58,7 +58,7 @@ module Displayable
       puts "Sorry, must be y or n"
     end
 
-    %w(y yes).include?(answer)
+    answer
   end
 
   def display_human_ultimate_winner_message
@@ -170,7 +170,7 @@ class Square
 
   def initialize(position)
     @position = position
-    @marker = position
+    @marker = INITIAL_MARKER
   end
 
   def ==(other_square)
@@ -182,11 +182,11 @@ class Square
   end
 
   def marked?
-    marker != position
+    marker != INITIAL_MARKER
   end
 
   def unmarked?
-    marker == position
+    marker == INITIAL_MARKER
   end
 end
 
@@ -280,8 +280,8 @@ class TTTGame
   end
 
   def computer_moves
-    if try_defense
-    elsif try_offense
+    if try_offense
+    elsif try_defense
     else
       square = board.unmarked_keys.sample
       board[square] = computer.marker
@@ -390,8 +390,7 @@ class TTTGame
   end
 
   def play_again?
-    answer = nil
-    yes_or_no_question?(play_again_prompt)
+    answer = yes_or_no_question(play_again_prompt)
     answer == 'y'
   end
 
@@ -407,7 +406,7 @@ class TTTGame
 
   def display_play_again_message
     puts "Let's play again!"
-    puts ''
+    blank_line
   end
 
   def switch_current_player
@@ -420,7 +419,6 @@ class TTTGame
 
   def reset_game
     board.reset
-    Square.reset
     [human, computer].each do |player|
       player.score = 0
     end
