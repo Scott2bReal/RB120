@@ -70,6 +70,15 @@ module Displayable
     puts ">>> The computer is the ultimate winner! <<<"
     blank_line
   end
+
+  def play_again_prompt
+    "Would you like to play again?"
+  end
+
+  def display_play_again_message
+    puts "Let's play again!"
+    blank_line
+  end
 end
 
 class Board
@@ -282,7 +291,7 @@ class TTTGame
     if try_offense    # makes move if can win
     elsif try_defense # makes move to block player from winning
     elsif board.unmarked_keys.include?(5)
-      board[5] = COMPUTER_MARKER
+      board[5] = computer.marker
     else
       square = board.unmarked_keys.sample
       board[square] = computer.marker
@@ -316,12 +325,12 @@ class TTTGame
 
   def try_defense # returns a move or nil
     at_risk = at_risk_squares(squares_marked_by(human))
-    board[at_risk.first] = COMPUTER_MARKER unless at_risk.empty?
+    board[at_risk.first] = computer.marker unless at_risk.empty?
   end
 
   def try_offense # returns a move or nil
     at_risk = at_risk_squares(squares_marked_by(computer))
-    board[at_risk.first] = COMPUTER_MARKER unless at_risk.empty?
+    board[at_risk.first] = computer.marker unless at_risk.empty?
   end
 
   def ultimate_winner?
@@ -366,13 +375,6 @@ class TTTGame
     board.draw
   end
 
-  def display_score_and_marker_assignment
-    puts <<~MSG
-    The score is: *~ You (X): #{human.score}; Computer (O): #{computer.score} ~*
-
-    MSG
-  end
-
   def clear_screen_and_display_board
     clear
     display_board
@@ -386,7 +388,7 @@ class TTTGame
     when computer.marker
       puts 'Computer won!'
     else
-      puts 'It\'s a tie!'
+      puts "It's a tie!"
     end
   end
 
@@ -399,15 +401,6 @@ class TTTGame
     board.reset
     self.current_player = human
     clear
-  end
-
-  def play_again_prompt
-    "Would you like to play again?"
-  end
-
-  def display_play_again_message
-    puts "Let's play again!"
-    blank_line
   end
 
   def switch_current_player
