@@ -25,13 +25,13 @@ module Displayable
     puts '-----'
   end
 
-  def display_scoreboard(score1, score2)
+  def display_scoreboard(score1, score2) # may need to edit computer name
     puts <<-MSG
            Score
 
        *-----+-----*
        |     |     |
-  You  |  #{score1}  |  #{score2}  |  Computer
+  You  |  #{score1}  |  #{score2}  |  #{computer.name}
        |     |     |
        *-----+-----*
     
@@ -422,7 +422,9 @@ class TTTGame
   end
 
   def display_welcome_message
-    puts "Welcome to Tic Tac Toe!"
+    puts "Hello #{human.name}, welcome to Tic Tac Toe!"
+    blank_line
+    puts "You will be playing against the computer, #{computer.name}"
     blank_line
   end
 
@@ -433,7 +435,7 @@ class TTTGame
 
   def display_goodbye_message
     blank_line
-    puts "Thanks for playing Tic Tac Toe! Goodbye!"
+    puts "Thanks for playing Tic Tac Toe, #{human.name}! Goodbye!"
   end
 
   def display_board
