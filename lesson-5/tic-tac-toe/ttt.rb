@@ -25,12 +25,6 @@ module Displayable
     puts '-----'
   end
 
-  def enter_to_continue
-    blank_line
-    puts "Please press enter to continue"
-    gets
-  end
-
   def display_scoreboard(score1, score2)
     puts <<-MSG
            Score
@@ -48,6 +42,23 @@ module Displayable
     puts "Sorry, that isn't a valid choice"
   end
 
+  def display_human_ultimate_winner_message
+    puts "*~ Congratulations, you are the ultimate winner! ~*"
+    blank_line
+  end
+
+  def display_computer_ultimate_winner_message
+    puts ">>> The computer is the ultimate winner! <<<"
+    blank_line
+  end
+
+  def display_play_again_message
+    puts "Let's play again!"
+    blank_line
+  end
+end
+
+module Promptable
   def yes_or_no_question(message)
     answer = nil
 
@@ -61,23 +72,14 @@ module Displayable
     answer
   end
 
-  def display_human_ultimate_winner_message
-    puts "*~ Congratulations, you are the ultimate winner! ~*"
-    blank_line
-  end
-
-  def display_computer_ultimate_winner_message
-    puts ">>> The computer is the ultimate winner! <<<"
-    blank_line
-  end
-
   def play_again_prompt
     "Would you like to play again?"
   end
 
-  def display_play_again_message
-    puts "Let's play again!"
+  def enter_to_continue
     blank_line
+    puts "Please press enter to continue"
+    gets
   end
 end
 
@@ -212,7 +214,7 @@ class Player
 end
 
 class TTTGame
-  include Displayable, Joinable
+  include Displayable, Joinable, Promptable
 
   GOAL_SCORE = 2
   MARKERS = ['X', 'O']
@@ -386,6 +388,7 @@ class TTTGame
     false
   end
 
+  # Would have used a ternary but method names are too long to fit on one line!
   def display_ultimate_winner_message
     case human.score
     when GOAL_SCORE then display_human_ultimate_winner_message
