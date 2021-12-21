@@ -48,13 +48,17 @@ module Displayable
     puts "Sorry, that isn't a valid choice"
   end
 
-  def yes_or_no_question
+  def yes_or_no_question?(message)
+    answer = nil
+
     loop do
-      puts "Would you like to play again? (y/n)"
+      puts "#{message} (y/n)"
       answer = gets.chomp.downcase
       break if %w(y n yes no).include?(answer)
       puts "Sorry, must be y or n"
     end
+
+    %w(y yes).include?(answer)
   end
 
   def display_human_ultimate_winner_message
@@ -387,7 +391,7 @@ class TTTGame
 
   def play_again?
     answer = nil
-    yes_or_no_question
+    yes_or_no_question?(play_again_prompt)
     answer == 'y'
   end
 
@@ -395,6 +399,10 @@ class TTTGame
     board.reset
     self.current_player = human
     clear
+  end
+
+  def play_again_prompt
+    "Would you like to play again?"
   end
 
   def display_play_again_message
