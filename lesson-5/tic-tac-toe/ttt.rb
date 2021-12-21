@@ -64,6 +64,8 @@ class Board
                   [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # cols
                   [[1, 5, 9], [3, 5, 7]]              # diagonals
 
+  attr_reader :squares
+
   def []=(key, marker)
     set_square_at(key, marker)
   end
@@ -149,13 +151,18 @@ class Square
   INITIAL_MARKER = ' '
 
   attr_accessor :marker
+  attr_reader :position
+
+  @@position = 0
 
   def initialize(marker=INITIAL_MARKER)
+    @@position += 1
+    @position = @@position
     @marker = marker
   end
 
   def ==(other_square)
-    marker == other_square.marker
+    marker == other_square
   end
 
   def to_s
@@ -261,8 +268,46 @@ class TTTGame
   end
 
   def computer_moves
-    square = board.unmarked_keys.sample
-    board[square] = computer.marker
+    if try_defence
+    elsif try_offence
+    else
+      square = board.unmarked_keys.sample
+      board[square] = computer.marker
+    end
+
+    # square = board.unmarked_keys.sample
+    # board[square] = computer.marker
+  end
+
+  def at_risk_squares(player_squares)
+    at_risk = []
+
+    board.unmarked_keys.each do |key|
+      player_squares.combination(2) do |combo|
+        at_risk << key if DANGER_SQUARES[key].include?(combo)
+      end
+    end
+
+    at_risk
+  end
+
+  def squares_marked_by(player)
+    marked_squares = []
+
+    (1..9).each do |key|
+      marked_squares << key if board[key] == player.marker
+    end
+    marked_squares
+  end
+
+  def try_defence # returns a move or nil
+    at_risk = at_risk_squares(squares_marked_by(human))
+    board[at_risk.first] = COMPUTER_MARKER unless at_risk.empty?
+  end
+
+  def try_offence # returns a move or nil
+    at_risk = at_risk_squares(squares_marked_by(computer))
+    board[at_risk.first] = COMPUTER_MARKER unless at_risk.empty?
   end
 
   def ultimate_winner?
