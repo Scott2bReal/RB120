@@ -234,6 +234,7 @@ class TTTGame
       main_game
       display_ultimate_winner_message
       break unless play_again?
+
       reset_game
     end
 
@@ -249,7 +250,8 @@ class TTTGame
     @board = Board.new
     @human = Player.new(player_choose_marker)
     @computer = Player.new(computer_choose_marker)
-    @current_player = @human
+    # @current_player = @human
+    @current_player = choose_first_turn
   end
 
   def main_game
@@ -258,8 +260,8 @@ class TTTGame
       player_moves
       display_result
       enter_to_continue
-      # break unless play_again?
       break if ultimate_winner?
+
       reset
     end
   end
@@ -268,19 +270,23 @@ class TTTGame
     loop do
       current_player == human ? human_moves : computer_moves
       break if board.someone_won? || board.full?
+
       switch_current_player
       clear_screen_and_display_board if human_turn?
     end
+
     current_player.scores_a_point if board.someone_won?
   end
 
   def human_moves
     puts "Choose a square (#{join_list(board.unmarked_keys, ', ', 'or')}): "
     square = nil
+
     loop do
       square = gets.chomp.to_i
       break if board.unmarked_keys.include?(square)
-      puts "Sorry, that's not a valid choice."
+
+      display_generic_invalid_choice_message
     end
 
     board[square] = human.marker
@@ -295,10 +301,6 @@ class TTTGame
       square = board.unmarked_keys.sample
       board[square] = computer.marker
     end
-
-    # Fallback AI, chooses random square
-    # square = board.unmarked_keys.sample
-    # board[square] = computer.marker
   end
 
   def at_risk_squares(player_squares)
@@ -348,6 +350,30 @@ class TTTGame
     MARKERS.reject { |marker| marker == human.marker }.first
   end
 
+  def choose_first_turn
+    answer = nil
+
+    loop do
+      blank_line
+      puts "Who would you like to go first? 1) You 2) Computer 3) Random"
+      answer = gets.chomp
+      break if ['1', '2', '3'].include?(answer)
+
+      display_generic_invalid_choice_message
+      puts "Please select using 1, 2 or 3"
+    end
+
+    translate_first_turn_choice(answer)
+  end
+
+  def translate_first_turn_choice(answer)
+    case answer
+    when '1' then human
+    when '2' then computer
+    when '3' then [human, computer].sample
+    end
+  end
+
   def ultimate_winner?
     [human, computer].each do |player|
       return true if player.score == GOAL_SCORE
@@ -366,7 +392,6 @@ class TTTGame
   def display_game_info
     display_welcome_message
     display_explanation
-    # display_score_and_marker_assignment
     display_scoreboard(human.score, computer.score)
   end
 
@@ -414,7 +439,7 @@ class TTTGame
 
   def reset
     board.reset
-    self.current_player = human
+    self.current_player = choose_first_turn
     clear
   end
 
@@ -428,6 +453,7 @@ class TTTGame
 
   def reset_game
     board.reset
+    reset
     [human, computer].each do |player|
       player.score = 0
     end
