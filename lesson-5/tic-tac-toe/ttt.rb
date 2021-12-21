@@ -155,10 +155,10 @@ class Square
 
   @@position = 0
 
-  def initialize(marker=INITIAL_MARKER)
+  def initialize
     @@position += 1
     @position = @@position
-    @marker = marker
+    @marker = position
   end
 
   def ==(other_square)
@@ -166,15 +166,15 @@ class Square
   end
 
   def to_s
-    @marker
+    @marker.to_s
   end
 
   def marked?
-    marker != INITIAL_MARKER
+    marker != position
   end
 
   def unmarked?
-    marker == INITIAL_MARKER
+    marker == position
   end
 end
 
@@ -268,13 +268,14 @@ class TTTGame
   end
 
   def computer_moves
-    if try_defence
-    elsif try_offence
+    if try_defense
+    elsif try_offense
     else
       square = board.unmarked_keys.sample
       board[square] = computer.marker
     end
 
+    # Fallback AI, chooses random square
     # square = board.unmarked_keys.sample
     # board[square] = computer.marker
   end
@@ -300,12 +301,12 @@ class TTTGame
     marked_squares
   end
 
-  def try_defence # returns a move or nil
+  def try_defense # returns a move or nil
     at_risk = at_risk_squares(squares_marked_by(human))
     board[at_risk.first] = COMPUTER_MARKER unless at_risk.empty?
   end
 
-  def try_offence # returns a move or nil
+  def try_offense # returns a move or nil
     at_risk = at_risk_squares(squares_marked_by(computer))
     board[at_risk.first] = COMPUTER_MARKER unless at_risk.empty?
   end
