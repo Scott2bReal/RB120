@@ -353,7 +353,7 @@ class TTTGame
   end
 
   def display_explanation
-    puts "First to 5 wins is the big winner!"
+    puts "First to #{GOAL_SCORE} wins is the big winner!"
     blank_line
   end
 
