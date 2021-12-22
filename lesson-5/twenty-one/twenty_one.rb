@@ -1,6 +1,51 @@
 require 'pry'
 
+module Displayable
+  def clear
+    system 'clear'
+  end
+
+  def blank_line
+    puts ""
+  end
+
+  def buffer_line
+    puts '-----'
+  end
+
+  def display_scoreboard(score1, score2) # Edit computer.name for general use
+    puts <<-MSG
+           Score
+
+       *-----+-----*
+       |     |     |
+  You  |  #{score1}  |  #{score2}  |  #{computer.name}
+       |     |     |
+       *-----+-----*
+    
+    MSG
+  end
+
+  def display_generic_invalid_choice_message
+    puts "Sorry, that isn't a valid choice"
+  end
+end
+
+module Joinable
+  def join_list(list, delim, last_word) # list should be an array
+    case list.size
+    when 0 then ''
+    when 1 then list.first
+    when 2 then "#{list.first} #{last_word} #{list.last}"
+    else
+      "#{list[0..-2].join(delim)}#{delim}#{last_word} #{list[-1]}"
+    end
+  end
+end
+
 class Participant
+  include Joinable, Displayable
+
   attr_reader :name
   attr_accessor :hand
 
@@ -24,14 +69,19 @@ class Player < Participant
   def show_hand
     # show all cards in hand
     # probably total as well
-    puts hand.cards
+    puts "Player hand:"
+    puts hand
   end
 end
 
 class Dealer < Participant
   def show_hand
     # only show one card
-    puts hand.cards
+    puts "Dealer hand:"
+    puts hand.cards.first
+    puts "???"
+    blank_line
+    buffer_line
   end
 end
 
@@ -61,8 +111,6 @@ class Deck
   end
 
   def deal_card
-    # does the dealer or the deck deal?
-    # I'm thinking I want the deck to deal
     cards.shuffle!.pop
   end
 
@@ -81,7 +129,7 @@ class Deck
   end
 end
 
-class Hand # card will collaborate
+class Hand
   MAX_POINTS = 21
 
   attr_accessor :cards, :total
@@ -104,7 +152,13 @@ class Hand # card will collaborate
   end
 
   def to_s
-    @cards
+    hand_string = ''
+
+    cards.each do |card|
+      hand_string << card.to_s
+    end
+
+    hand_string
   end
 
   private
@@ -146,13 +200,14 @@ class Card
 end
 
 class Game
+  include Displayable
+
   INITIAL_DEAL = 2
   NUMBER_OF_PLAYERS = 2
 
   attr_reader :deck, :player, :dealer
 
   def initialize
-    # Needs a dealer, player, deck, current_player
     @deck = Deck.new
     @player = Player.new
     @dealer = Dealer.new
@@ -160,6 +215,7 @@ class Game
   end
 
   def start
+    clear
     initial_deal
     show_initial_cards
     # player_turn
@@ -178,9 +234,7 @@ class Game
   end
 
   def show_initial_cards
-    [player, dealer].each(&:show_hand)
-    puts "Deck: "
-    puts deck.cards
+    [dealer, player].each(&:show_hand)
   end
 end
 
