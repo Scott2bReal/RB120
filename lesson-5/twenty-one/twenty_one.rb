@@ -75,6 +75,13 @@ class Player < Participant
 end
 
 class Dealer < Participant
+  attr_reader :deck
+
+  def initialize(deck)
+    super()
+    @deck = deck
+  end
+
   def show_hand
     # only show one card
     puts "Dealer hand:"
@@ -82,6 +89,10 @@ class Dealer < Participant
     puts "???"
     blank_line
     buffer_line
+  end
+
+  def deal_card
+    deck.cards.shuffle!.pop
   end
 end
 
@@ -108,10 +119,6 @@ class Deck
 
   def initialize
     @cards = initialize_deck
-  end
-
-  def deal_card
-    cards.shuffle!.pop
   end
 
   private
@@ -210,7 +217,7 @@ class Game
   def initialize
     @deck = Deck.new
     @player = Player.new
-    @dealer = Dealer.new
+    @dealer = Dealer.new(deck)
     @current_player = @player
   end
 
@@ -228,7 +235,7 @@ class Game
   def initial_deal
     [player, dealer].each do |participant|
       INITIAL_DEAL.times do
-        participant.hand.cards << deck.deal_card
+        participant.hand.cards << dealer.deal_card
       end
     end
   end
