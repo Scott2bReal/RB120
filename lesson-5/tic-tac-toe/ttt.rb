@@ -23,7 +23,7 @@ module Displayable
     puts '-----'
   end
 
-  def display_scoreboard(score1, score2) # may need to edit computer name
+  def display_scoreboard(score1, score2) # Edit computer.name for general use
     puts <<-MSG
            Score
 
@@ -40,7 +40,7 @@ module Displayable
     puts "Sorry, that isn't a valid choice"
   end
 
-  # Code below is specific to this application
+  # Code below is application specific
 
   def human_grand_champ
     puts "*~ Congratulations #{human.name}, you are the ultimate winner! ~*"
@@ -455,7 +455,7 @@ class TTTGame
       display_ultimate_winner_message
       break unless play_again?
 
-      reset_game
+      reset_match
     end
 
     display_goodbye_message
@@ -476,18 +476,19 @@ class TTTGame
   def main_game
     loop do
       display_board
-      player_moves
+      players_take_turns
       display_result
       enter_to_continue
       break if ultimate_winner?
 
-      reset
+      reset_game
     end
   end
 
-  def player_moves
+  def players_take_turns
     loop do
       current_player == human ? human_moves : computer_moves
+
       break if board.someone_won? || board.full?
 
       switch_current_player
@@ -573,7 +574,7 @@ class TTTGame
     false
   end
 
-  def reset
+  def reset_game
     board.reset
     self.current_player = choose_first_turn
     clear
@@ -587,9 +588,9 @@ class TTTGame
     current_player == human
   end
 
-  def reset_game
+  def reset_match
     board.reset
-    reset
+    reset_game
     [human, computer].each do |player|
       player.score = 0
     end
