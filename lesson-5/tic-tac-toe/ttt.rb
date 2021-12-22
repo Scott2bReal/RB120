@@ -40,13 +40,15 @@ module Displayable
     puts "Sorry, that isn't a valid choice"
   end
 
-  def display_human_ultimate_winner_message(name)
-    puts "*~ Congratulations #{name}, you are the ultimate winner! ~*"
+  # Code below is specific to this application
+
+  def human_grand_champ
+    puts "*~ Congratulations #{human.name}, you are the ultimate winner! ~*"
     blank_line
   end
 
-  def display_computer_ultimate_winner_message(name)
-    puts ">>> #{name} is the ultimate winner! <<<"
+  def comp_grand_champ
+    puts ">>> #{computer.name} is the ultimate winner! <<<"
     blank_line
   end
 
@@ -58,6 +60,106 @@ module Displayable
   def display_game_description
     puts self.class::GAME_DESCRIPTION
   end
+
+  def display_ultimate_winner_message
+    human.score == TTTGame::GOAL_SCORE ? human_grand_champ : comp_grand_champ
+  end
+
+  def display_game_info
+    display_welcome_message
+    display_explanation
+    display_scoreboard(human.score, computer.score)
+  end
+
+  def display_welcome_message
+    puts "Hello #{human.name}, welcome to Tic Tac Toe!"
+    blank_line
+    puts "You will be playing against the computer, #{computer.name}"
+    blank_line
+  end
+
+  def display_explanation
+    puts "First to #{TTTGame::GOAL_SCORE} wins is the big winner!"
+    blank_line
+  end
+
+  def display_goodbye_message
+    blank_line
+    puts "Thanks for playing Tic Tac Toe, #{human.name}! Goodbye!"
+  end
+
+  def display_board
+    display_game_info
+    board.draw
+  end
+
+  def clear_screen_and_display_board
+    clear
+    display_board
+  end
+
+  def display_result
+    clear_screen_and_display_board
+    case board.winning_marker
+    when human.marker
+      puts 'You won!'
+    when computer.marker
+      puts 'Computer won!'
+    else
+      puts "It's a tie!"
+    end
+  end
+
+  def display_instructions
+    clear
+    display_game_description
+    blank_line
+    board.draw_with_positions
+    enter_to_continue
+    clear_screen_and_display_board
+  end
+
+  def display_human_choice_prompt
+    puts "\nChoose a square (#{join_list(board.unmarked_keys, ', ', 'or')}): "
+    puts "\nFor game info, type 'info'"
+  end
+
+  def display_human_marker_choice_prompt
+    puts "\nWelcome to Tic Tac Toe! Which marker do you want to use? (X or O)"
+  end
+
+  def display_invalid_marker_choice_message
+    puts "\nI'm sorry, that is not a valid marker. Please select X or O"
+  end
+end
+
+module Verifiable
+  def valid_player_name?(answer)
+    computer_names = Computer::COMPUTER_NAMES.map(&:downcase)
+    return false if computer_names.include?(answer.downcase)
+    return false if answer.strip.empty?
+    true
+  end
+
+  def invalid_name_message
+    <<~MSG
+    
+    I'm sorry, that is not a valid name.
+    Please enter a name which is not on the computer team, or empty
+
+    Computer Team:
+    #{join_list(Computer::COMPUTER_NAMES, ', ', 'and')}
+    
+    MSG
+  end
+
+  def valid_human_square_choice?(answer)
+    unmarked = board.unmarked_keys.map(&:to_s)
+
+    return false unless unmarked.include?(answer)
+
+    true
+  end
 end
 
 module Promptable
@@ -68,7 +170,7 @@ module Promptable
       puts "#{message} (y/n)"
       answer = gets.chomp.downcase
       break if %w(y n yes no).include?(answer)
-      puts "Sorry, must be y or n"
+      puts "Sorry, must be yes or no (y/n)"
     end
 
     answer
@@ -90,12 +192,57 @@ module Promptable
     loop do
       puts "Please enter your name:"
       answer = gets.chomp
-      break if valid_player_name?(answer) # define in class
+      break if valid_player_name?(answer)
 
-      puts invalid_name_message           # define in class
+      puts invalid_name_message
     end
 
     answer
+  end
+
+  def play_again?
+    answer = yes_or_no_question(play_again_prompt)
+    %w(y yes).include?(answer)
+  end
+
+  # Code below is application specific
+
+  def player_choose_marker
+    answer = nil
+
+    display_human_marker_choice_prompt
+    loop do
+      answer = gets.chomp
+      break if TTTGame::MARKERS.include?(answer.upcase)
+
+      display_invalid_marker_choice_message
+    end
+
+    answer.upcase
+  end
+
+  def choose_first_turn
+    answer = nil
+
+    loop do
+      blank_line
+      puts "Who would you like to go first? 1) You 2) Computer 3) Random"
+      answer = gets.chomp
+      break if ['1', '2', '3'].include?(answer)
+
+      display_generic_invalid_choice_message
+      puts "Please select using 1, 2 or 3"
+    end
+
+    translate_first_turn_choice(answer)
+  end
+
+  def translate_first_turn_choice(answer)
+    case answer
+    when '1' then human
+    when '2' then computer
+    when '3' then [human, computer].sample
+    end
   end
 end
 
@@ -108,17 +255,17 @@ class Board
 
   attr_reader :squares
 
+  def initialize
+    @squares = {}
+    reset
+  end
+
   def []=(key, marker)
     set_square_at(key, marker)
   end
 
   def [](key)
     @squares[key]
-  end
-
-  def initialize
-    @squares = {}
-    reset
   end
 
   def draw
@@ -190,6 +337,10 @@ class Board
     (1..9).each { |key| @squares[key] = Square.new }
   end
 
+  def center_square_unmarked?
+    self[CENTER_SQUARE].unmarked?
+  end
+
   private
 
   def three_identical_markers?(squares)
@@ -239,15 +390,12 @@ class Square
 end
 
 class Player
-  COMPUTER_NAMES = ['Hal', 'Chappie', 'Sonny', 'R2D2', 'C3P0']
-
   attr_accessor :marker, :score
   attr_reader :name
 
-  def initialize(marker, name=COMPUTER_NAMES.sample)
+  def initialize(marker)
     @marker = marker
     @score = 0
-    @name = name
   end
 
   def scores_a_point
@@ -255,8 +403,26 @@ class Player
   end
 end
 
+class Human < Player
+  include Verifiable, Promptable
+
+  def initialize(marker)
+    super(marker)
+    @name = player_choose_name
+  end
+end
+
+class Computer < Player
+  COMPUTER_NAMES = ['Hal', 'Chappie', 'Sonny', 'R2D2', 'C3P0']
+
+  def initialize(marker)
+    super(marker)
+    @name = COMPUTER_NAMES.sample
+  end
+end
+
 class TTTGame
-  include Displayable, Joinable, Promptable
+  include Displayable, Joinable, Promptable, Verifiable
 
   GAME_DESCRIPTION = <<~MSG
   ---
@@ -267,6 +433,7 @@ class TTTGame
   ---
 
   MSG
+
   GOAL_SCORE = 2
   MARKERS = ['X', 'O']
   DANGER_SQUARES = {
@@ -301,8 +468,8 @@ class TTTGame
 
   def initialize
     @board = Board.new
-    @human = Player.new(player_choose_marker, player_choose_name)
-    @computer = Player.new(computer_choose_marker)
+    @human = Human.new(player_choose_marker)
+    @computer = Computer.new(computer_choose_marker)
     @current_player = choose_first_turn
   end
 
@@ -330,11 +497,6 @@ class TTTGame
     current_player.scores_a_point if board.someone_won?
   end
 
-  def display_human_choice_prompt
-    puts "\nChoose a square (#{join_list(board.unmarked_keys, ', ', 'or')}): "
-    puts "\nFor game info, type 'info'"
-  end
-
   def human_moves
     answer = human_choice
     board[answer.to_i] = human.marker
@@ -356,29 +518,12 @@ class TTTGame
     end
   end
 
-  def display_instructions
-    clear
-    display_game_description
-    blank_line
-    board.draw_with_positions
-    enter_to_continue
-    clear_screen_and_display_board
-  end
-
-  def valid_human_square_choice?(answer)
-    unmarked = board.unmarked_keys.map(&:to_s)
-
-    return false unless unmarked.include?(answer)
-
-    true
-  end
-
   def computer_moves
     computer_move = try_offense_then_defense
 
     if computer_move
       board[computer_move] = computer.marker
-    elsif board.unmarked_keys.include?(Board::CENTER_SQUARE)
+    elsif board.center_square_unmarked?
       board[Board::CENTER_SQUARE] = computer.marker
     else
       square = board.unmarked_keys.sample
@@ -417,46 +562,8 @@ class TTTGame
     marked_squares
   end
 
-  def player_choose_marker
-    answer = nil
-
-    puts "\nWelcome to Tic Tac Toe! Which marker do you want to use? (X or O)"
-    loop do
-      answer = gets.chomp
-      break if MARKERS.include?(answer.upcase)
-
-      puts "\nI'm sorry, that is not a valid marker. Please select X or O"
-    end
-
-    answer.upcase
-  end
-
   def computer_choose_marker
     MARKERS.reject { |marker| marker == human.marker }.first
-  end
-
-  def choose_first_turn
-    answer = nil
-
-    loop do
-      blank_line
-      puts "Who would you like to go first? 1) You 2) Computer 3) Random"
-      answer = gets.chomp
-      break if ['1', '2', '3'].include?(answer)
-
-      display_generic_invalid_choice_message
-      puts "Please select using 1, 2 or 3"
-    end
-
-    translate_first_turn_choice(answer)
-  end
-
-  def translate_first_turn_choice(answer)
-    case answer
-    when '1' then human
-    when '2' then computer
-    when '3' then [human, computer].sample
-    end
   end
 
   def ultimate_winner?
@@ -464,65 +571,6 @@ class TTTGame
       return true if player.score == GOAL_SCORE
     end
     false
-  end
-
-  # Would have used a ternary but method names are too long to fit on one line!
-  def display_ultimate_winner_message
-    case human.score
-    when GOAL_SCORE then display_human_ultimate_winner_message(human.name)
-    else
-      display_computer_ultimate_winner_message(computer.name)
-    end
-  end
-
-  def display_game_info
-    display_welcome_message
-    display_explanation
-    display_scoreboard(human.score, computer.score)
-  end
-
-  def display_welcome_message
-    puts "Hello #{human.name}, welcome to Tic Tac Toe!"
-    blank_line
-    puts "You will be playing against the computer, #{computer.name}"
-    blank_line
-  end
-
-  def display_explanation
-    puts "First to #{GOAL_SCORE} wins is the big winner!"
-    blank_line
-  end
-
-  def display_goodbye_message
-    blank_line
-    puts "Thanks for playing Tic Tac Toe, #{human.name}! Goodbye!"
-  end
-
-  def display_board
-    display_game_info
-    board.draw
-  end
-
-  def clear_screen_and_display_board
-    clear
-    display_board
-  end
-
-  def display_result
-    clear_screen_and_display_board
-    case board.winning_marker
-    when human.marker
-      puts 'You won!'
-    when computer.marker
-      puts 'Computer won!'
-    else
-      puts "It's a tie!"
-    end
-  end
-
-  def play_again?
-    answer = yes_or_no_question(play_again_prompt)
-    answer == 'y'
   end
 
   def reset
@@ -545,25 +593,6 @@ class TTTGame
     [human, computer].each do |player|
       player.score = 0
     end
-  end
-
-  def valid_player_name?(answer)
-    computer_names = Player::COMPUTER_NAMES.map(&:downcase)
-    return false if computer_names.include?(answer.downcase)
-    return false if answer.strip.empty?
-    true
-  end
-
-  def invalid_name_message
-    <<~MSG
-    
-    I'm sorry, that is not a valid name.
-    Please enter a name which is not on the computer team, or empty
-
-    Computer Team:
-    #{join_list(Player::COMPUTER_NAMES, ', ', 'and')}
-    
-    MSG
   end
 end
 
