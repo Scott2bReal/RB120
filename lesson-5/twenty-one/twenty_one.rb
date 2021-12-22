@@ -13,18 +13,24 @@ class Participant
   end
 
   def hit
+    # deck will give one card to hand
   end
 
   def stay
+    # what happens here?
   end
 end
 
 class Player < Participant
+  def show_hand
+    # show all cards in hand
+    # probably total as well
+  end
 end
 
 class Dealer < Participant
-  def deal
-    # does the dealer o the deck deal?
+  def show_hand
+    # only show one card
   end
 end
 
@@ -41,7 +47,7 @@ class Deck
     'J' => 10,
     'Q' => 10,
     'K' => 10,
-    'A' => 11,
+    'A' => 11
   }
 
   SUITS = %w(♠ ♥ ♣ ♦)
@@ -56,14 +62,12 @@ class Deck
 
   def deal
     # does the dealer or the deck deal?
+    # I'm thinking I want the deck to deal
   end
 
   private
 
   def initialize_deck
-    # For each possible name of card create a new Card
-    # for each of these, iterate thru the suits and make a card with the name
-    # value and suit of the current iterations
     cards = []
 
     CARD_VALUES.each do |name, value|
@@ -77,15 +81,40 @@ class Deck
 end
 
 class Hand # card will collaborate
+  MAX_POINTS = 21
+
+  attr_accessor :cards, :total
+
   def initialize
     @cards = []
+    @total = 0
   end
 
   def busted?
+    total > MAX_POINTS
   end
 
-  def total
-    # definitely looks like we need to know about 'cards' to produce some total
+  def update_total
+    cards.each do |card|
+      self.total += card.value
+    end
+
+    calculate_aces if total > MAX_POINTS
+  end
+
+  private
+
+  def calculate_aces
+    aces = number_of_aces
+
+    until aces == 0
+      aces -= 1
+      self.total -= 10
+    end
+  end
+
+  def number_of_aces
+    cards.select { |card| card.name == 'A' }.size
   end
 end
 
