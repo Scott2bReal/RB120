@@ -98,7 +98,7 @@ module Hand
 
   def update_total(card)
     self.total += card.value
-    self.calculate_ace_values if busted?
+    calculate_ace_values if busted?
   end
 
   def to_s
@@ -112,16 +112,24 @@ module Hand
   end
 
   def calculate_ace_values
-    aces = number_of_aces
+    @total = 0
 
-    until aces == 0
-      aces -= 1
-      self.total -= 10 if busted?
+    cards.each do |card|
+      @total += card.value
+      if busted?
+        @total -= 10 if card.ace?
+      end
     end
+    # aces = number_of_aces
+
+    # until aces == 0
+    #   aces -= 1
+    #   self.total -= 10 if busted?
+    # end
   end
 
   def number_of_aces
-    cards.select { |card| card.name == 'A' }.size
+    cards.select(&:ace?).size
   end
 
   def hit
@@ -153,8 +161,10 @@ class Player
   end
 
   def show_hand
-    puts "#{self.class} has: #{join_list(cards, ', ', 'and')} (total score = #{total})"
-    blank_line
+    puts <<~MSG
+    #{self.class} has: #{join_list(cards, ', ', 'and')} (total score = #{total})
+
+    MSG
   end
 
   def to_s
@@ -195,7 +205,6 @@ class Dealer < Player
 
   def show_initial_hand
     puts <<~MSG
-
     Dealer has: #{cards.first} and ???  
 
     MSG
@@ -234,7 +243,7 @@ class Deck
   end
 
   def reset
-    cards = []
+    self.cards = []
 
     CARD_VALUES.each do |name, value|
       SUITS.each do |suit|
@@ -267,10 +276,41 @@ class Card
     # *-----*
     # MSG
   end
+
+  def ace?
+    name == 'A'
+  end
 end
 
 class Game
   include Displayable, Hand
+
+  DESCRIPTION = <<~MSG
+      *~ Welcome to 21! ~*
+
+    ***
+
+      The goal of 21 is to get as close to 21 points as possible, without
+    going over. If you go over, it's a "bust" and you lose. The player with the
+    highest amount of points without going over wins the round.
+
+      The first player to reach 5 wins is the winner of the match.
+
+      You will be playing against the "dealer". Both you and the dealer are initially
+    dealt 2 cards. You can always see all of your cards, but will only see one of
+    the dealer's cards.
+
+      The number cards are worth their face value, face cards are
+    all worth 10 points, and aces are worth 11, but are only worth one if they cause
+    the player to bust.
+
+      On your turn you will be prompted to either "hit" or "stay". Hitting draws
+    another card from the deck, while staying means you will compare your current
+    and with the dealer's hand, after they take their turn.
+
+    ***
+
+  MSG
 
   INITIAL_DEAL = 2
   NUMBER_OF_PLAYERS = 2
@@ -301,6 +341,7 @@ class Game
   attr_reader :deck, :player, :dealer
 
   def initial_deal
+    binding.pry
     [player, dealer].each do |participant|
       INITIAL_DEAL.times do
         participant.hit
@@ -335,30 +376,31 @@ class Game
   def clear_screen_and_display_game_info
     clear
     # [dealer, player].each(&:show_hand)
+    puts DESCRIPTION
     dealer.show_initial_hand
     player.show_hand
   end
 
   def show_result
     clear
+    puts DESCRIPTION
     [dealer, player].each(&:show_hand)
     display_winner_message
   end
 
   def display_winner_message
-    puts "The winner is: #{determine_winner.to_s}"
+    puts "The winner is: #{determine_winner}"
   end
 
   def determine_winner
-    # If one player has already won, return winner
     return winner if winner
 
     if player > dealer
-      player
+      'Player'
     elsif dealer > player
-      dealer
+      'Dealer'
     else
-      "Tie"
+      'Tie'
     end
   end
 
@@ -377,11 +419,3 @@ class Game
 end
 
 Game.new.start
-# player = Player.new
-# player.cards = [
-#   Card.new('3', 3, 'h'),
-#   Card.new('2', 2, 'd'),
-#   Card.new('A', 11, 'd'),
-#   Card.new('3', 3, 'd'),
-#   Card.new('A', 11, 'd')
-# ]
