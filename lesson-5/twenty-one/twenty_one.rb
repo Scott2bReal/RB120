@@ -52,6 +52,7 @@ module Displayable
   end
 
   def play_again_prompt
+    blank_line
     "Would you like to play again?"
   end
 
@@ -120,16 +121,11 @@ module Hand
 
     cards.each do |card|
       @total += card.value
+
       if busted?
         @total -= 10 if card.ace?
       end
     end
-    # aces = number_of_aces
-
-    # until aces == 0
-    #   aces -= 1
-    #   self.total -= 10 if busted?
-    # end
   end
 
   def number_of_aces
@@ -181,9 +177,9 @@ class Player
     loop do
       prompt "Please enter your name:"
       answer = gets.chomp
-      break if valid_player_name?(answer) # define in class
+      break if valid_player_name?(answer)
 
-      prompt invalid_name_message           # define in class
+      prompt invalid_name_message
     end
 
     answer
@@ -365,7 +361,7 @@ class Game
       clear_screen_and_display_game_info
     end
 
-    @winner = 'Dealer' if player.busted?
+    @winner = dealer if player.busted?
   end
 
   def dealer_turn
@@ -373,12 +369,11 @@ class Game
       dealer.hit
     end
 
-    @winner = 'Player' if dealer.busted?
+    @winner = player if dealer.busted?
   end
 
   def clear_screen_and_display_game_info
     clear
-    # [dealer, player].each(&:show_hand)
     puts DESCRIPTION
     dealer.show_initial_hand
     player.show_hand
@@ -391,19 +386,28 @@ class Game
     display_winner_message
   end
 
+  def display_busted_message
+    prompt "You busted!" if player.busted?
+    prompt "The dealer busted!" if dealer.busted?
+  end
+
   def display_winner_message
-    prompt "The winner is: #{determine_winner}"
+    display_busted_message
+
+    case determine_winner
+    when player then prompt "Congratulations, you won!"
+    when dealer then prompt "The dealer won! Better luck next time."
+    when nil    then prompt "It's a tie!"
+    end
   end
 
   def determine_winner
     return winner if winner
 
     if player > dealer
-      'Player'
+      player
     elsif dealer > player
-      'Dealer'
-    else
-      'Tie'
+      dealer
     end
   end
 
