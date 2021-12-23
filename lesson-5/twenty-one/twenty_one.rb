@@ -341,7 +341,6 @@ class Game
   attr_reader :deck, :player, :dealer
 
   def initial_deal
-    binding.pry
     [player, dealer].each do |participant|
       INITIAL_DEAL.times do
         participant.hit
@@ -362,7 +361,7 @@ class Game
       clear_screen_and_display_game_info
     end
 
-    @winner = dealer if player.busted?
+    @winner = 'Dealer' if player.busted?
   end
 
   def dealer_turn
@@ -370,7 +369,7 @@ class Game
       dealer.hit
     end
 
-    @winner = player if dealer.busted?
+    @winner = 'Player' if dealer.busted?
   end
 
   def clear_screen_and_display_game_info
