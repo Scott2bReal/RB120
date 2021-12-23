@@ -43,6 +43,62 @@ module Joinable
   end
 end
 
+module Promptable
+  def yes_or_no_question(message)
+    answer = nil
+
+    loop do
+      puts "#{message} (y/n)"
+      answer = gets.chomp.downcase
+      break if %w(y n yes no).include?(answer)
+      puts "Sorry, must be yes or no (y/n)"
+    end
+
+    answer
+  end
+
+  def play_again_prompt
+    "Would you like to play again?"
+  end
+
+  def enter_to_continue
+    blank_line
+    puts "Please press enter to continue"
+    gets
+  end
+
+  def player_choose_name
+    answer = nil
+
+    loop do
+      puts "Please enter your name:"
+      answer = gets.chomp
+      break if valid_player_name?(answer)
+
+      puts invalid_name_message
+    end
+
+    answer
+  end
+
+  def play_again?
+    answer = yes_or_no_question(play_again_prompt)
+    %w(y yes).include?(answer)
+  end
+
+  def hit_or_stay_prompt
+    answer = nil
+
+    loop do
+      puts "Would you like to hit or stay?"
+      answer = gets.chomp
+      break if ['hit', 'stay'].include?(answer)
+    end
+
+    answer
+  end
+end
+
 class Participant
   include Joinable, Displayable
 
@@ -63,15 +119,15 @@ class Participant
   def stay
     # what happens here?
   end
+
+  def show_hand
+    hand.update_total
+    puts "#{self.class} hand (total score = #{hand.total})"
+    puts hand
+  end
 end
 
 class Player < Participant
-  def show_hand
-    # show all cards in hand
-    # probably total as well
-    puts "Player hand:"
-    puts hand
-  end
 end
 
 class Dealer < Participant
@@ -82,7 +138,7 @@ class Dealer < Participant
     @deck = deck
   end
 
-  def show_hand
+  def show_initial_hand
     # only show one card
     puts "Dealer hand:"
     puts hand.cards.first
@@ -151,11 +207,13 @@ class Hand
   end
 
   def update_total
+    self.total = 0
+
     cards.each do |card|
       self.total += card.value
     end
 
-    calculate_aces if total > MAX_POINTS
+    calculate_aces if busted?
   end
 
   def to_s
@@ -175,12 +233,12 @@ class Hand
 
     until aces == 0
       aces -= 1
-      self.total -= 10
+      self.total -= 10 if busted?
     end
   end
 
   def number_of_aces
-    cards.select { |card| card.name == 'A' }.size
+    cards.select { |card| card.name == ' A' }.size
   end
 end
 
@@ -207,12 +265,13 @@ class Card
 end
 
 class Game
-  include Displayable
+  include Displayable, Promptable
 
   INITIAL_DEAL = 2
   NUMBER_OF_PLAYERS = 2
 
   attr_reader :deck, :player, :dealer
+  attr_accessor :current_player
 
   def initialize
     @deck = Deck.new
@@ -222,12 +281,11 @@ class Game
   end
 
   def start
-    clear
     initial_deal
-    show_initial_cards
-    # player_turn
-    # dealer_turn
-    # show_result
+    clear_screen_and_display_game_info
+    player_turn
+    dealer_turn
+    show_result
   end
 
   private
@@ -240,11 +298,40 @@ class Game
     end
   end
 
-  def show_initial_cards
-    [dealer, player].each(&:show_hand)
+  def clear_screen_and_display_game_info
+    clear
+    # [dealer, player].each(&:show_hand)
+    dealer.show_initial_hand
+    player.show_hand
+  end
+
+  def player_turn
+    loop do
+      answer = hit_or_stay_prompt
+      break if answer == 'stay'
+
+      current_player.hand.cards << dealer.deal_card
+      clear_screen_and_display_game_info
+    end
+    self.current_player = dealer
+  end
+
+  def dealer_turn
+    loop do
+      current_player.hand.cards << dealer.deal_card
+      dealer.hand.update_total
+      break if dealer.hand.total >= 17
+    end
+  end
+
+  def show_result
+    clear
+    dealer.show_hand
+    player.show_hand
+  end
+
+  def determine_winner
   end
 end
 
 Game.new.start
-# deck = Deck.new
-# puts deck.cards
