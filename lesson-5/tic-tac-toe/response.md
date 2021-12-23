@@ -73,4 +73,5 @@ evaluated!
 Again, I really appreciate the time and effort you (and all the TA's) put into
 these code reviews! I always come away with a much deeper understanding of my
 own code, a better idea of what concepts to focus on, and a more clear picture
-of my blind spots and weak areas. I've uploaded my refactored code [here]
+of my blind spots and weak areas. I've uploaded my refactored code
+[here](https://github.com/Scott2bReal/RB120/blob/main/lesson-5/tic-tac-toe/ttt_refactored.rb)
