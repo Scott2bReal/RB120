@@ -154,8 +154,8 @@ end
 class Player
   include Joinable, Displayable, Hand
 
-  attr_reader :deck, :cards
-  attr_accessor :total
+  attr_reader :deck
+  attr_accessor :total, :cards
 
   def initialize(deck)
     @cards = []
@@ -215,12 +215,10 @@ class Deck
   attr_accessor :cards
 
   def initialize
-    @cards = initialize_deck
+    @cards = reset
   end
 
-  private
-
-  def initialize_deck
+  def reset
     cards = []
 
     CARD_VALUES.each do |name, value|
@@ -305,6 +303,7 @@ class Game
       break if player.busted?
 
       hit_or_stay_prompt == '1' ? player.hit : break
+      clear_screen_and_display_game_info
     end
 
     @winner = dealer if player.busted?
@@ -327,36 +326,25 @@ class Game
 
   def show_result
     clear
-    dealer.show_hand
-    player.show_hand
-    display_winner
+    [dealer, player].each(&:show_hand)
+    display_winner_message
   end
 
-  def display_winner
+  def display_winner_message
     if winner
-      puts "The winner is: #{winner.class}"
+      puts "The winner is: #{determine_winner.class}"
     else
       puts "It's a tie!"
     end
   end
 
   def determine_winner
-    return winner if winner
-
-    case player <=> dealer
-    when 1 then player
-    when 0 then nil
-    when -1 then dealer
-    end
+    winner == player ? player : dealer
   end
 
   def reset
-    reset_deck
-    reset_scores
-  end
-
-  def reset_deck
-    self.deck = Deck.new
+    deck.reset
+    reset_hands
   end
 
   def reset_hands
