@@ -152,7 +152,7 @@ module Hand
 end
 
 class Player
-  include Joinable, Displayable, Hand
+  include Joinable, Displayable, Hand, Comparable
 
   attr_reader :deck
   attr_accessor :total, :cards
@@ -164,28 +164,26 @@ class Player
   end
 
   def <=>(other_participant)
-    hand.total <=> other_participant.hand.total
+    total <=> other_participant.total
   end
 
   def show_hand
     puts "#{self.class} hand (total score = #{total})"
     puts cards
   end
+
+  def to_s
+    self.class
+  end
 end
 
 class Dealer < Player
   def show_initial_hand
-    # only show one card
-
     puts <<~MSG
+
     Dealer hand:
     #{cards.first} ???  
     MSG
-    # puts "Dealer hand:"
-    # puts hand.cards.first
-    # puts "???"
-    # blank_line
-    # buffer_line
   end
 
   def deal_card
@@ -314,7 +312,7 @@ class Game
       dealer.hit
     end
 
-    self.winner = player if dealer.busted?
+    @winner = player if dealer.busted?
   end
 
   def clear_screen_and_display_game_info
@@ -331,15 +329,17 @@ class Game
   end
 
   def display_winner_message
-    if winner
-      puts "The winner is: #{determine_winner.class}"
-    else
-      puts "It's a tie!"
-    end
+    puts "The winner is: #{determine_winner}"
   end
 
   def determine_winner
-    winner == player ? player : dealer
+    self.winner = if player > dealer || dealer.busted?
+                    'Player'
+                  elsif dealer < player || player.busted?
+                    'Dealer'
+                  else
+                    'Tie'
+                  end
   end
 
   def reset
