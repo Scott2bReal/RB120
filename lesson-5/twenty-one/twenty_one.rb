@@ -94,9 +94,11 @@ module Promptable
     answer = nil
 
     loop do
-      puts "Would you like to hit or stay?"
+      puts "Would you like to 1) hit or 2) stay?"
       answer = gets.chomp
-      break if ['hit', 'stay'].include?(answer)
+      break if ['1', '2'].include?(answer)
+
+      puts "Please select using numbers 1 or 2"
     end
 
     answer
@@ -110,7 +112,7 @@ module Hand
     total > MAX_POINTS
   end
 
-  def update_total
+  def update_total(card)
     self.total += card.value
     calculate_ace_values if busted?
   end
@@ -139,25 +141,26 @@ module Hand
   end
 
   def hit
-    card = deck.shuffle!.pop
+    card = deck.cards.shuffle!.pop
     cards << card
     update_total(card)
   end
 
   def stay
-    # what happens here?
+    total
   end
 end
 
-class Participant
+class Player
   include Joinable, Displayable, Hand
 
-  attr_reader :name, :total
+  attr_reader :deck, :cards
+  attr_accessor :total
 
-  def initialize
-    @hand = Hand.new
+  def initialize(deck)
     @cards = []
     @total = 0
+    @deck = deck
   end
 
   def <=>(other_participant)
@@ -165,30 +168,24 @@ class Participant
   end
 
   def show_hand
-    hand.update_total
-    puts "#{self.class} hand (total score = #{hand.total})"
-    puts hand
+    puts "#{self.class} hand (total score = #{total})"
+    puts cards
   end
 end
 
-class Player < Participant
-end
-
-class Dealer < Participant
-  attr_reader :deck
-
-  def initialize(deck)
-    super()
-    @deck = deck
-  end
-
+class Dealer < Player
   def show_initial_hand
     # only show one card
-    puts "Dealer hand:"
-    puts hand.cards.first
-    puts "???"
-    blank_line
-    buffer_line
+
+    puts <<~MSG
+    Dealer hand:
+    #{cards.first} ???  
+    MSG
+    # puts "Dealer hand:"
+    # puts hand.cards.first
+    # puts "???"
+    # blank_line
+    # buffer_line
   end
 
   def deal_card
@@ -236,18 +233,6 @@ class Deck
   end
 end
 
-class Hand
-  MAX_POINTS = 21
-
-  attr_accessor :cards, :total
-
-  def initialize
-    @cards = []
-    @total = 0
-  end
-
- end
-
 class Card
   def initialize(name, value, suit)
     @name = name
@@ -271,17 +256,14 @@ class Card
 end
 
 class Game
-  include Displayable, Promptable
+  include Displayable, Promptable, Hand
 
   INITIAL_DEAL = 2
   NUMBER_OF_PLAYERS = 2
 
-  attr_reader :deck, :player, :dealer
-  attr_accessor :current_player, :winner
-
   def initialize
     @deck = Deck.new
-    @player = Player.new
+    @player = Player.new(deck)
     @dealer = Dealer.new(deck)
     @current_player = @player
     @winner = nil
@@ -302,12 +284,38 @@ class Game
 
   private
 
+  attr_accessor :current_player, :winner
+  attr_reader :deck, :player, :dealer
+
   def initial_deal
     [player, dealer].each do |participant|
       INITIAL_DEAL.times do
-        participant.hand.cards << dealer.deal_card
+        participant.hit
       end
     end
+  end
+
+  def players_take_turns
+    player_turn
+    dealer_turn
+  end
+
+  def player_turn
+    loop do
+      break if player.busted?
+
+      hit_or_stay_prompt == '1' ? player.hit : break
+    end
+
+    @winner = dealer if player.busted?
+  end
+
+  def dealer_turn
+    until dealer.total >= 17
+      dealer.hit
+    end
+
+    self.winner = player if dealer.busted?
   end
 
   def clear_screen_and_display_game_info
@@ -315,28 +323,6 @@ class Game
     # [dealer, player].each(&:show_hand)
     dealer.show_initial_hand
     player.show_hand
-  end
-
-  def player_turn
-    loop do
-      answer = hit_or_stay_prompt
-      break if answer == 'stay'
-
-      current_player.hand.cards << dealer.deal_card
-      self.winner = dealer if player.hand.busted?
-      clear_screen_and_display_game_info
-    end
-    self.current_player = dealer
-  end
-
-  def dealer_turn
-    loop do
-      current_player.hand.cards << dealer.deal_card
-      dealer.hand.update_total
-      break if dealer.hand.total >= 17
-    end
-
-    self.winner = player if dealer.hand.busted?
   end
 
   def show_result
@@ -365,7 +351,19 @@ class Game
   end
 
   def reset
-    self.initialize
+    reset_deck
+    reset_scores
+  end
+
+  def reset_deck
+    self.deck = Deck.new
+  end
+
+  def reset_hands
+    [dealer, player].each do |participant|
+      participant.cards = []
+      participant.total = 0
+    end
   end
 end
 
