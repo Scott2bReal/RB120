@@ -35,7 +35,7 @@ module Displayable
   end
 
   def display_goodbye_message
-    "Thanks for playing, goodbye!"
+    prompt "Thanks for playing, #{player}! Goodbye!"
   end
 
   def yes_or_no_question(message)
@@ -143,7 +143,7 @@ module Hand
   end
 end
 
-class Player
+class Participant
   include Joinable, Displayable, Hand, Comparable
 
   attr_reader :deck, :name
@@ -153,7 +153,6 @@ class Player
     @cards = []
     @total = 0
     @deck = deck
-    # @name = player_choose_name
   end
 
   def <=>(other_participant)
@@ -162,14 +161,26 @@ class Player
 
   def show_hand
     prompt <<~MSG
-    #{self.class} has: #{join_list(cards, ', ', 'and')} (total score = #{total})
+    #{self} has: #{join_list(cards, ', ', 'and')} (total score = #{total})
 
     MSG
   end
 
   def to_s
-    self.class
+    name
   end
+end
+
+class Player < Participant
+  def initialize(deck)
+    super(deck)
+    @name = player_choose_name
+  end
+
+  attr_reader :deck, :name
+  attr_accessor :total, :cards
+
+  private
 
   def player_choose_name
     answer = nil
@@ -200,12 +211,18 @@ class Player
   end
 end
 
-class Dealer < Player
+class Dealer < Participant
   DEALER_NAMES = %w(R2D2 C3P0)
+  DEALER_LIMIT = 17
+
+  def initialize(deck)
+    super(deck)
+    @name = DEALER_NAMES.sample
+  end
 
   def show_initial_hand
     prompt <<~MSG
-    Dealer has: #{cards.first} and ???  
+    #{self} has: #{cards.first} and ???  
 
     MSG
   end
@@ -286,27 +303,28 @@ class Game
   include Displayable, Hand
 
   DESCRIPTION = <<~MSG
-      *~ Welcome to 21! ~*
+      *~ Welcome to #{Hand::MAX_POINTS}! ~*
 
     ***
 
-      The goal of 21 is to get as close to 21 points as possible, without
-    going over. If you go over, it's a "bust" and you lose. The player with the
-    highest amount of points without going over wins the round.
+      The goal of #{Hand::MAX_POINTS} is to get as close to #{Hand::MAX_POINTS}
+      points as possible, without going over. If you go over, it's a "bust" and
+      you lose. The player with the highest amount of points without going over
+      wins the round.
 
       The first player to reach 5 wins is the winner of the match.
 
-      You will be playing against the "dealer". Both you and the dealer are initially
-    dealt 2 cards. You can always see all of your cards, but will only see one of
-    the dealer's cards.
+      You will be playing against the "dealer". Both you and the dealer are
+      initially dealt 2 cards. You can always see all of your cards, but will
+      only see one of the dealer's cards.
 
-      The number cards are worth their face value, face cards are
-    all worth 10 points, and aces are worth 11, but are only worth one if they cause
-    the player to bust.
+      The number cards are worth their face value, face cards are all worth 10
+      points, and aces are worth 11, but are only worth one if they cause the
+      player to bust.
 
       On your turn you will be prompted to either "hit" or "stay". Hitting draws
-    another card from the deck, while staying means you will compare your current
-    and with the dealer's hand, after they take their turn.
+      another card from the deck, while staying means you will compare your
+      current and with the dealer's hand, after they take their turn.
 
     ***
 
@@ -365,7 +383,7 @@ class Game
   end
 
   def dealer_turn
-    until dealer.total >= 17
+    until dealer.total >= Dealer::DEALER_LIMIT
       dealer.hit
     end
 
@@ -388,17 +406,27 @@ class Game
 
   def display_busted_message
     prompt "You busted!" if player.busted?
-    prompt "The dealer busted!" if dealer.busted?
+    prompt "#{dealer} busted!" if dealer.busted?
   end
 
   def display_winner_message
     display_busted_message
+    winner = determine_winner
 
-    case determine_winner
-    when player then prompt "Congratulations, you won!"
-    when dealer then prompt "The dealer won! Better luck next time."
-    when nil    then prompt "It's a tie!"
-    end
+    prompt "Congratulations #{player}, you won!" if winner == player
+    prompt "#{dealer} won! Better luck next time." if winner == dealer
+    prompt "It's a tie!" unless winner
+
+    # The code below produces a strange bug upon a tie... Something about the
+    # case implementation. It throws an error stemming from '===', saying there
+    # is no total method for nil. I can't see why it is trying to call total on
+    # nil.
+    #
+    # case determine_winner
+    # when player then prompt "Congratulations, you won!"
+    # when dealer then prompt "The dealer won! Better luck next time."
+    # when nil    then prompt "It's a tie!"
+    # end
   end
 
   def determine_winner
