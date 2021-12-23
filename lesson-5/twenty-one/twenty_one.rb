@@ -33,21 +33,7 @@ module Displayable
   def display_goodbye_message
     "Thanks for playing, goodbye!"
   end
-end
 
-module Joinable
-  def join_list(list, delim, last_word) # list should be an array
-    case list.size
-    when 0 then ''
-    when 1 then list.first
-    when 2 then "#{list.first} #{last_word} #{list.last}"
-    else
-      "#{list[0..-2].join(delim)}#{delim}#{last_word} #{list[-1]}"
-    end
-  end
-end
-
-module Promptable
   def yes_or_no_question(message)
     answer = nil
 
@@ -65,29 +51,15 @@ module Promptable
     "Would you like to play again?"
   end
 
+  def play_again?
+    answer = yes_or_no_question(play_again_prompt)
+    %w(y yes).include?(answer)
+  end
+
   def enter_to_continue
     blank_line
     puts "Please press enter to continue"
     gets
-  end
-
-  def player_choose_name
-    answer = nil
-
-    loop do
-      puts "Please enter your name:"
-      answer = gets.chomp
-      break if valid_player_name?(answer)
-
-      puts invalid_name_message
-    end
-
-    answer
-  end
-
-  def play_again?
-    answer = yes_or_no_question(play_again_prompt)
-    %w(y yes).include?(answer)
   end
 
   def hit_or_stay_prompt
@@ -105,6 +77,18 @@ module Promptable
   end
 end
 
+module Joinable
+  def join_list(list, delim, last_word) # list should be an array
+    case list.size
+    when 0 then ''
+    when 1 then list.first
+    when 2 then "#{list.first} #{last_word} #{list.last}"
+    else
+      "#{list[0..-2].join(delim)}#{delim}#{last_word} #{list[-1]}"
+    end
+  end
+end
+
 module Hand
   MAX_POINTS = 21
 
@@ -114,7 +98,7 @@ module Hand
 
   def update_total(card)
     self.total += card.value
-    calculate_ace_values if busted?
+    self.calculate_ace_values if busted?
   end
 
   def to_s
@@ -137,7 +121,7 @@ module Hand
   end
 
   def number_of_aces
-    cards.select { |card| card.name == ' A' }.size
+    cards.select { |card| card.name == 'A' }.size
   end
 
   def hit
@@ -154,13 +138,14 @@ end
 class Player
   include Joinable, Displayable, Hand, Comparable
 
-  attr_reader :deck
+  attr_reader :deck, :name
   attr_accessor :total, :cards
 
   def initialize(deck)
     @cards = []
     @total = 0
     @deck = deck
+    # @name = player_choose_name
   end
 
   def <=>(other_participant)
@@ -168,21 +153,51 @@ class Player
   end
 
   def show_hand
-    puts "#{self.class} hand (total score = #{total})"
-    puts cards
+    puts "#{self.class} has: #{join_list(cards, ', ', 'and')} (total score = #{total})"
+    blank_line
   end
 
   def to_s
     self.class
   end
+
+  def player_choose_name
+    answer = nil
+
+    loop do
+      puts "Please enter your name:"
+      answer = gets.chomp
+      break if valid_player_name?(answer) # define in class
+
+      puts invalid_name_message           # define in class
+    end
+
+    answer
+  end
+
+  def invalid_name_message
+    <<~MSG
+    Please select a name which is not a dealer name or empty.
+    Computer team: 
+    #{Dealer::DEALER_NAMES}
+    
+    MSG
+  end
+
+  def valid_player_name?(answer)
+    return false if Dealer::DEALER_NAMES.include?(answer) || answer.strip.empty?
+    true
+  end
 end
 
 class Dealer < Player
+  DEALER_NAMES = %w(R2D2 C3P0)
+
   def show_initial_hand
     puts <<~MSG
 
-    Dealer hand:
-    #{cards.first} ???  
+    Dealer has: #{cards.first} and ???  
+
     MSG
   end
 
@@ -192,6 +207,8 @@ class Dealer < Player
 end
 
 class Deck
+  include Joinable
+
   CARD_VALUES = {
     '2' => 2,
     '3' => 3,
@@ -253,7 +270,7 @@ class Card
 end
 
 class Game
-  include Displayable, Promptable, Hand
+  include Displayable, Hand
 
   INITIAL_DEAL = 2
   NUMBER_OF_PLAYERS = 2
@@ -270,8 +287,7 @@ class Game
     loop do
       initial_deal
       clear_screen_and_display_game_info
-      player_turn
-      dealer_turn
+      players_take_turns
       show_result
       break unless play_again?
       reset
@@ -294,7 +310,7 @@ class Game
 
   def players_take_turns
     player_turn
-    dealer_turn
+    dealer_turn unless player.busted?
   end
 
   def player_turn
@@ -330,22 +346,26 @@ class Game
   end
 
   def display_winner_message
-    puts "The winner is: #{determine_winner}"
+    puts "The winner is: #{determine_winner.to_s}"
   end
 
   def determine_winner
-    self.winner = if player > dealer || dealer.busted?
-                    'Player'
-                  elsif dealer < player || player.busted?
-                    'Dealer'
-                  else
-                    'Tie'
-                  end
+    # If one player has already won, return winner
+    return winner if winner
+
+    if player > dealer
+      player
+    elsif dealer > player
+      dealer
+    else
+      "Tie"
+    end
   end
 
   def reset
     deck.reset
     reset_hands
+    @winner = nil
   end
 
   def reset_hands
@@ -357,3 +377,11 @@ class Game
 end
 
 Game.new.start
+# player = Player.new
+# player.cards = [
+#   Card.new('3', 3, 'h'),
+#   Card.new('2', 2, 'd'),
+#   Card.new('A', 11, 'd'),
+#   Card.new('3', 3, 'd'),
+#   Card.new('A', 11, 'd')
+# ]
