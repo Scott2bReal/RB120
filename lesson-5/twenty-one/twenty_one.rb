@@ -1,6 +1,10 @@
 require 'pry'
 
 module Displayable
+  def prompt(message)
+    puts "=> #{message}"
+  end
+
   def clear
     system 'clear'
   end
@@ -27,7 +31,7 @@ module Displayable
   end
 
   def display_generic_invalid_choice_message
-    puts "Sorry, that isn't a valid choice"
+    prompt "Sorry, that isn't a valid choice"
   end
 
   def display_goodbye_message
@@ -38,10 +42,10 @@ module Displayable
     answer = nil
 
     loop do
-      puts "#{message} (y/n)"
+      prompt "#{message} (y/n)"
       answer = gets.chomp.downcase
       break if %w(y n yes no).include?(answer)
-      puts "Sorry, must be yes or no (y/n)"
+      prompt "Sorry, must be yes or no (y/n)"
     end
 
     answer
@@ -58,7 +62,7 @@ module Displayable
 
   def enter_to_continue
     blank_line
-    puts "Please press enter to continue"
+    prompt "Please press enter to continue"
     gets
   end
 
@@ -66,11 +70,11 @@ module Displayable
     answer = nil
 
     loop do
-      puts "Would you like to 1) hit or 2) stay?"
+      prompt "Would you like to 1) hit or 2) stay?"
       answer = gets.chomp
       break if ['1', '2'].include?(answer)
 
-      puts "Please select using numbers 1 or 2"
+      prompt "Please select using numbers 1 or 2"
     end
 
     answer
@@ -161,7 +165,7 @@ class Player
   end
 
   def show_hand
-    puts <<~MSG
+    prompt <<~MSG
     #{self.class} has: #{join_list(cards, ', ', 'and')} (total score = #{total})
 
     MSG
@@ -175,11 +179,11 @@ class Player
     answer = nil
 
     loop do
-      puts "Please enter your name:"
+      prompt "Please enter your name:"
       answer = gets.chomp
       break if valid_player_name?(answer) # define in class
 
-      puts invalid_name_message           # define in class
+      prompt invalid_name_message           # define in class
     end
 
     answer
@@ -204,7 +208,7 @@ class Dealer < Player
   DEALER_NAMES = %w(R2D2 C3P0)
 
   def show_initial_hand
-    puts <<~MSG
+    prompt <<~MSG
     Dealer has: #{cards.first} and ???  
 
     MSG
@@ -388,7 +392,7 @@ class Game
   end
 
   def display_winner_message
-    puts "The winner is: #{determine_winner}"
+    prompt "The winner is: #{determine_winner}"
   end
 
   def determine_winner
