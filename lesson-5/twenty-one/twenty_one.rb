@@ -103,29 +103,65 @@ module Promptable
   end
 end
 
-class Participant
-  include Joinable, Displayable
+module Hand
+  MAX_POINTS = 21
 
-  attr_reader :name
-  attr_accessor :hand
-
-  def initialize
-    # what would the 'data' or 'states' of a Player object entail?
-    # maybe cards? a name?
-    # @name = name
-    @hand = Hand.new
+  def busted?
+    total > MAX_POINTS
   end
 
-  def <=>(other_participant)
-    hand.total <=> other_participant.hand.total
+  def update_total
+    self.total += card.value
+    calculate_ace_values if busted?
+  end
+
+  def to_s
+    hand_string = ''
+
+    cards.each do |card|
+      hand_string << card.to_s
+    end
+
+    hand_string
+  end
+
+  def calculate_ace_values
+    aces = number_of_aces
+
+    until aces == 0
+      aces -= 1
+      self.total -= 10 if busted?
+    end
+  end
+
+  def number_of_aces
+    cards.select { |card| card.name == ' A' }.size
   end
 
   def hit
-    # deck will give one card to hand
+    card = deck.shuffle!.pop
+    cards << card
+    update_total(card)
   end
 
   def stay
     # what happens here?
+  end
+end
+
+class Participant
+  include Joinable, Displayable, Hand
+
+  attr_reader :name, :total
+
+  def initialize
+    @hand = Hand.new
+    @cards = []
+    @total = 0
+  end
+
+  def <=>(other_participant)
+    hand.total <=> other_participant.hand.total
   end
 
   def show_hand
@@ -210,45 +246,7 @@ class Hand
     @total = 0
   end
 
-  def busted?
-    total > MAX_POINTS
-  end
-
-  def update_total
-    self.total = 0
-
-    cards.each do |card|
-      self.total += card.value
-    end
-
-    calculate_aces if busted?
-  end
-
-  def to_s
-    hand_string = ''
-
-    cards.each do |card|
-      hand_string << card.to_s
-    end
-
-    hand_string
-  end
-
-  private
-
-  def calculate_aces
-    aces = number_of_aces
-
-    until aces == 0
-      aces -= 1
-      self.total -= 10 if busted?
-    end
-  end
-
-  def number_of_aces
-    cards.select { |card| card.name == ' A' }.size
-  end
-end
+ end
 
 class Card
   def initialize(name, value, suit)
