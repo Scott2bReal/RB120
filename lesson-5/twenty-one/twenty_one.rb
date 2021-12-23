@@ -29,6 +29,10 @@ module Displayable
   def display_generic_invalid_choice_message
     puts "Sorry, that isn't a valid choice"
   end
+
+  def display_goodbye_message
+    "Thanks for playing, goodbye!"
+  end
 end
 
 module Joinable
@@ -110,6 +114,10 @@ class Participant
     # maybe cards? a name?
     # @name = name
     @hand = Hand.new
+  end
+
+  def <=>(other_participant)
+    hand.total <=> other_participant.hand.total
   end
 
   def hit
@@ -271,21 +279,27 @@ class Game
   NUMBER_OF_PLAYERS = 2
 
   attr_reader :deck, :player, :dealer
-  attr_accessor :current_player
+  attr_accessor :current_player, :winner
 
   def initialize
     @deck = Deck.new
     @player = Player.new
     @dealer = Dealer.new(deck)
     @current_player = @player
+    @winner = nil
   end
 
   def start
-    initial_deal
-    clear_screen_and_display_game_info
-    player_turn
-    dealer_turn
-    show_result
+    loop do
+      initial_deal
+      clear_screen_and_display_game_info
+      player_turn
+      dealer_turn
+      show_result
+      break unless play_again?
+      reset
+    end
+    display_goodbye_message
   end
 
   private
@@ -311,6 +325,7 @@ class Game
       break if answer == 'stay'
 
       current_player.hand.cards << dealer.deal_card
+      self.winner = dealer if player.hand.busted?
       clear_screen_and_display_game_info
     end
     self.current_player = dealer
@@ -322,15 +337,37 @@ class Game
       dealer.hand.update_total
       break if dealer.hand.total >= 17
     end
+
+    self.winner = player if dealer.hand.busted?
   end
 
   def show_result
     clear
     dealer.show_hand
     player.show_hand
+    display_winner
+  end
+
+  def display_winner
+    if winner
+      puts "The winner is: #{winner.class}"
+    else
+      puts "It's a tie!"
+    end
   end
 
   def determine_winner
+    return winner if winner
+
+    case player <=> dealer
+    when 1 then player
+    when 0 then nil
+    when -1 then dealer
+    end
+  end
+
+  def reset
+    self.initialize
   end
 end
 
