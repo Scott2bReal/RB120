@@ -1,5 +1,3 @@
-require 'pry'
-
 module Displayable
   def prompt(message)
     puts "=> #{message}"
@@ -17,7 +15,7 @@ module Displayable
     puts '-----'
   end
 
-  def display_scoreboard(score1, score2) # Edit computer.name for general use
+  def display_scoreboard(score1, score2) # Edit line 7 for general use
     puts <<-MSG
            Score
 
@@ -45,6 +43,7 @@ module Displayable
       prompt "#{message} (y/n)"
       answer = gets.chomp.downcase
       break if %w(y n yes no).include?(answer)
+
       prompt "Sorry, must be yes or no (y/n)"
     end
 
@@ -154,16 +153,6 @@ module Hand
   def update_hand_total(card)
     self.hand_total += card.value
     calculate_ace_values if busted?
-  end
-
-  def to_s
-    hand_string = ''
-
-    cards.each do |card|
-      hand_string << card.to_s
-    end
-
-    hand_string
   end
 
   def calculate_ace_values
@@ -459,7 +448,7 @@ class Game
   end
 
   def determine_winner
-    return winner if winner
+    return winner if winner # if someone busted, winner will already be set
 
     if player > dealer
       self.winner = player
