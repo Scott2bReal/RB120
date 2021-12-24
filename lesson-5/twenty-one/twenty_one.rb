@@ -359,7 +359,7 @@ class Game
     end
     # loop do
     #   initial_deal
-    #   clear_screen_and_display_game_info
+    #   display_game_info
     #   players_take_turns
     #   winner&.scores_a_point
     #   show_result
@@ -377,9 +377,10 @@ class Game
   def main_game
     loop do
       initial_deal
-      clear_screen_and_display_game_info
+      display_game_info
       players_take_turns
-      winner&.scores_a_point
+      determine_winner
+      winner.scores_a_point if winner
       show_result
       enter_to_continue
       reset
@@ -404,7 +405,7 @@ class Game
       break if player.busted?
 
       hit_or_stay_prompt == '1' ? player.hit : break
-      clear_screen_and_display_game_info
+      display_game_info # will clear screen
     end
 
     @winner = dealer if player.busted?
@@ -418,17 +419,20 @@ class Game
     @winner = player if dealer.busted?
   end
 
-  def clear_screen_and_display_game_info
+  def clear_screen_and_display_description
     clear
     puts DESCRIPTION
+  end
+
+  def display_game_info
+    clear_screen_and_display_description
     display_scoreboard(player.score, dealer.score)
     dealer.show_initial_hand
     player.show_hand
   end
 
   def show_result
-    clear
-    puts DESCRIPTION
+    clear_screen_and_display_description
     display_scoreboard(player.score, dealer.score)
     [dealer, player].each(&:show_hand)
     display_winner_message
@@ -442,7 +446,6 @@ class Game
 
   def display_winner_message
     display_busted_message
-    winner = determine_winner
 
     prompt "Congratulations #{player}, you won!" if winner == player
     prompt "#{dealer} won! Better luck next time." if winner == dealer
@@ -460,13 +463,18 @@ class Game
     # end
   end
 
+  def display_ultimate_winner_message
+    blank_line
+    prompt "*~ #{winner} is the ultimate winner! ~*"
+  end
+
   def determine_winner
     return winner if winner
 
     if player > dealer
-      player
+      self.winner = player
     elsif dealer > player
-      dealer
+      self.winner = dealer
     end
   end
 
