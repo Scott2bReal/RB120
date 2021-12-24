@@ -23,7 +23,7 @@ module Displayable
 
        *-----+-----*
        |     |     |
-  You  |  #{score1}  |  #{score2}  |  #{computer.name}
+  You  |  #{score1}  |  #{score2}  |  #{dealer.name}
        |     |     |
        *-----+-----*
     
@@ -147,12 +147,13 @@ class Participant
   include Joinable, Displayable, Hand, Comparable
 
   attr_reader :deck, :name
-  attr_accessor :total, :cards
+  attr_accessor :total, :cards, :score
 
   def initialize(deck)
     @cards = []
     @total = 0
     @deck = deck
+    @score = 0
   end
 
   def <=>(other_participant)
@@ -168,6 +169,14 @@ class Participant
 
   def to_s
     name
+  end
+
+  def scores_a_point
+    self.score += 1
+  end
+
+  def reset_score
+    self.score = 0
   end
 end
 
@@ -332,6 +341,7 @@ class Game
 
   INITIAL_DEAL = 2
   NUMBER_OF_PLAYERS = 2
+  GOAL_SCORE = 5
 
   def initialize
     @deck = Deck.new
@@ -343,20 +353,38 @@ class Game
 
   def start
     loop do
-      initial_deal
-      clear_screen_and_display_game_info
-      players_take_turns
-      show_result
+      main_game
       break unless play_again?
-      reset
+      reset_match
     end
-    display_goodbye_message
+    # loop do
+    #   initial_deal
+    #   clear_screen_and_display_game_info
+    #   players_take_turns
+    #   winner&.scores_a_point
+    #   show_result
+    #   break unless play_again?
+    #   reset
+    # end
+    # display_goodbye_message
   end
 
   private
 
   attr_accessor :current_player, :winner
   attr_reader :deck, :player, :dealer
+
+  def main_game
+    loop do
+      initial_deal
+      clear_screen_and_display_game_info
+      players_take_turns
+      winner&.scores_a_point
+      show_result
+      enter_to_continue
+      reset
+    end
+  end
 
   def initial_deal
     [player, dealer].each do |participant|
@@ -393,6 +421,7 @@ class Game
   def clear_screen_and_display_game_info
     clear
     puts DESCRIPTION
+    display_scoreboard(player.score, dealer.score)
     dealer.show_initial_hand
     player.show_hand
   end
@@ -400,8 +429,10 @@ class Game
   def show_result
     clear
     puts DESCRIPTION
+    display_scoreboard(player.score, dealer.score)
     [dealer, player].each(&:show_hand)
     display_winner_message
+    display_ultimate_winner_message if winner&.score == GOAL_SCORE
   end
 
   def display_busted_message
@@ -450,6 +481,11 @@ class Game
       participant.cards = []
       participant.total = 0
     end
+  end
+
+  def reset_match
+    reset
+    [player, dealer].each(&:reset_score)
   end
 end
 
