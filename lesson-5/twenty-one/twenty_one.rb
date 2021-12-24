@@ -233,7 +233,7 @@ class Player < Participant
     loop do
       prompt "Please enter your name:"
       answer = gets.chomp
-      break if valid_player_name?(answer)
+      break if valid_player_name?(answer.downcase)
 
       prompt invalid_name_message
     end
@@ -251,7 +251,8 @@ class Player < Participant
   end
 
   def valid_player_name?(answer)
-    return false if Dealer::DEALER_NAMES.include?(answer) || answer.strip.empty?
+    dealer_names = Dealer::DEALER_NAMES.map(&:downcase)
+    return false if dealer_names.include?(answer) || answer.strip.empty?
     true
   end
 end
@@ -357,7 +358,7 @@ class Game
       you lose. The player with the highest amount of points without going over
       wins the round.
 
-      The first player to reach 5 wins is the winner of the match.
+      The first player to reach #{GOAL_SCORE} wins is the winner of the match.
 
       You will be playing against the "dealer". Both you and the dealer are
       initially dealt 2 cards. You can always see all of your cards, but will
