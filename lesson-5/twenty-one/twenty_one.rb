@@ -148,11 +148,11 @@ module Hand
   MAX_POINTS = 21
 
   def busted?
-    total > MAX_POINTS
+    hand_total > MAX_POINTS
   end
 
-  def update_total(card)
-    self.total += card.value
+  def update_hand_total(card)
+    self.hand_total += card.value
     calculate_ace_values if busted?
   end
 
@@ -167,13 +167,13 @@ module Hand
   end
 
   def calculate_ace_values
-    self.total = 0
+    self.hand_total = 0
 
     cards.each do |card|
-      self.total += card.value
+      self.hand_total += card.value
 
       if busted?
-        self.total -= 10 if card.ace?
+        self.hand_total -= 10 if card.ace?
       end
     end
   end
@@ -185,11 +185,11 @@ module Hand
   def hit
     card = deck.cards.shuffle!.pop
     cards << card
-    update_total(card)
+    update_hand_total(card)
   end
 
   def stay
-    total
+    hand_total
   end
 end
 
@@ -197,22 +197,22 @@ class Participant
   include Joinable, Displayable, Hand, Comparable
 
   attr_reader :deck, :name
-  attr_accessor :total, :cards, :score
+  attr_accessor :hand_total, :cards, :score
 
   def initialize(deck)
     @cards = []
-    @total = 0
+    @hand_total = 0
     @deck = deck
     @score = 0
   end
 
   def <=>(other_participant)
-    total <=> other_participant.total
+    hand_total <=> other_participant.hand_total
   end
 
   def show_hand
     prompt <<~MSG
-    #{self} has: #{join_list(cards, ', ', 'and')} (total score = #{total})
+    #{self} has: #{join_list(cards, ', ', 'and')} (total score = #{hand_total})
 
     MSG
   end
@@ -235,9 +235,6 @@ class Player < Participant
     super(deck)
     @name = player_choose_name
   end
-
-  attr_reader :deck, :name
-  attr_accessor :total, :cards
 
   private
 
@@ -447,14 +444,14 @@ class Game
       break if player.busted?
 
       hit_or_stay_prompt == '1' ? player.hit : break
-      display_game_info # will clear screen
+      display_game_info
     end
 
     @winner = dealer if player.busted?
   end
 
   def dealer_turn
-    until dealer.total >= Dealer::DEALER_LIMIT
+    until dealer.hand_total >= Dealer::DEALER_LIMIT
       dealer.hit
     end
 
@@ -480,7 +477,7 @@ class Game
   def reset_hands
     [dealer, player].each do |participant|
       participant.cards = []
-      participant.total = 0
+      participant.hand_total = 0
     end
   end
 
