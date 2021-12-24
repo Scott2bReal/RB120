@@ -80,6 +80,56 @@ module Displayable
 
     answer
   end
+
+  def clear_screen_and_display_description
+    clear
+    puts Game::DESCRIPTION
+  end
+
+  def display_game_info
+    clear_screen_and_display_description
+    display_scoreboard(player.score, dealer.score)
+    dealer.show_initial_hand
+    player.show_hand
+  end
+
+  def show_result
+    clear_screen_and_display_description
+    display_scoreboard(player.score, dealer.score)
+    [dealer, player].each(&:show_hand)
+    display_winner_message
+    display_ultimate_winner_message if winner&.score == Game::GOAL_SCORE
+    enter_to_continue
+  end
+
+  def display_busted_message
+    prompt "You busted!" if player.busted?
+    prompt "#{dealer} busted!" if dealer.busted?
+  end
+
+  def display_winner_message
+    display_busted_message
+
+    prompt "Congratulations #{player}, you won!" if winner == player
+    prompt "#{dealer} won! Better luck next time." if winner == dealer
+    prompt "It's a tie!" unless winner
+
+    # The code below produces a strange bug upon a tie... Something about the
+    # case implementation. It throws an error stemming from '===', saying there
+    # is no total method for nil. I can't see why it is trying to call total on
+    # nil.
+    #
+    # case determine_winner
+    # when player then prompt "Congratulations, you won!"
+    # when dealer then prompt "The dealer won! Better luck next time."
+    # when nil    then prompt "It's a tie!"
+    # end
+  end
+
+  def display_ultimate_winner_message
+    blank_line
+    prompt "*~ #{winner} is the ultimate winner! ~*"
+  end
 end
 
 module Joinable
@@ -117,13 +167,13 @@ module Hand
   end
 
   def calculate_ace_values
-    @total = 0
+    self.total = 0
 
     cards.each do |card|
-      @total += card.value
+      self.total += card.value
 
       if busted?
-        @total -= 10 if card.ace?
+        self.total -= 10 if card.ace?
       end
     end
   end
@@ -357,16 +407,8 @@ class Game
       break unless play_again?
       reset_match
     end
-    # loop do
-    #   initial_deal
-    #   display_game_info
-    #   players_take_turns
-    #   winner&.scores_a_point
-    #   show_result
-    #   break unless play_again?
-    #   reset
-    # end
-    # display_goodbye_message
+
+    display_goodbye_message
   end
 
   private
@@ -380,9 +422,9 @@ class Game
       display_game_info
       players_take_turns
       determine_winner
-      winner.scores_a_point if winner
+      winner&.scores_a_point
       show_result
-      enter_to_continue
+      break if winner&.score == GOAL_SCORE
       reset
     end
   end
@@ -397,7 +439,7 @@ class Game
 
   def players_take_turns
     player_turn
-    dealer_turn unless player.busted?
+    player.busted? ? @winner = dealer : dealer_turn
   end
 
   def player_turn
@@ -417,55 +459,6 @@ class Game
     end
 
     @winner = player if dealer.busted?
-  end
-
-  def clear_screen_and_display_description
-    clear
-    puts DESCRIPTION
-  end
-
-  def display_game_info
-    clear_screen_and_display_description
-    display_scoreboard(player.score, dealer.score)
-    dealer.show_initial_hand
-    player.show_hand
-  end
-
-  def show_result
-    clear_screen_and_display_description
-    display_scoreboard(player.score, dealer.score)
-    [dealer, player].each(&:show_hand)
-    display_winner_message
-    display_ultimate_winner_message if winner&.score == GOAL_SCORE
-  end
-
-  def display_busted_message
-    prompt "You busted!" if player.busted?
-    prompt "#{dealer} busted!" if dealer.busted?
-  end
-
-  def display_winner_message
-    display_busted_message
-
-    prompt "Congratulations #{player}, you won!" if winner == player
-    prompt "#{dealer} won! Better luck next time." if winner == dealer
-    prompt "It's a tie!" unless winner
-
-    # The code below produces a strange bug upon a tie... Something about the
-    # case implementation. It throws an error stemming from '===', saying there
-    # is no total method for nil. I can't see why it is trying to call total on
-    # nil.
-    #
-    # case determine_winner
-    # when player then prompt "Congratulations, you won!"
-    # when dealer then prompt "The dealer won! Better luck next time."
-    # when nil    then prompt "It's a tie!"
-    # end
-  end
-
-  def display_ultimate_winner_message
-    blank_line
-    prompt "*~ #{winner} is the ultimate winner! ~*"
   end
 
   def determine_winner
