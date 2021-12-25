@@ -348,6 +348,9 @@ end
 class Game
   include Displayable, Hand
 
+  INITIAL_DEAL = 2
+  NUMBER_OF_PLAYERS = 2
+  GOAL_SCORE = 5
   DESCRIPTION = <<~MSG
       *~ Welcome to #{Hand::MAX_POINTS}! ~*
 
@@ -375,10 +378,6 @@ class Game
     ***
 
   MSG
-
-  INITIAL_DEAL = 2
-  NUMBER_OF_PLAYERS = 2
-  GOAL_SCORE = 5
 
   def initialize
     @deck = Deck.new
