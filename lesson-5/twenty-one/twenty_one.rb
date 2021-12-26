@@ -15,8 +15,8 @@ module Displayable
     puts '-----'
   end
 
-  def display_scoreboard(score1, score2) # Edit line 7 for general use
-    puts <<-MSG
+  def scoreboard(score1, score2) # Edit line 7 for general use
+    <<-MSG
            Score
 
        *-----+-----*
@@ -80,25 +80,32 @@ module Displayable
     answer
   end
 
-  def clear_screen_and_display_description
+  def clear_screen_and_display_game_header
     clear
     puts Game::DESCRIPTION
+    puts scoreboard(player.score, dealer.score)
   end
 
   def display_game_info
-    clear_screen_and_display_description
-    display_scoreboard(player.score, dealer.score)
-    dealer.show_initial_hand
-    player.show_hand
+    clear_screen_and_display_game_header
+    show_hands(hide_dealer_cards: true)
   end
 
   def show_result
-    clear_screen_and_display_description
-    display_scoreboard(player.score, dealer.score)
-    [dealer, player].each(&:show_hand)
+    clear_screen_and_display_game_header
+    show_hands
     display_winner_message
     display_ultimate_winner_message if winner&.score == Game::GOAL_SCORE
     enter_to_continue
+  end
+
+  def show_hands(hide_dealer_cards: false)
+    if hide_dealer_cards
+      dealer.show_hidden_hand
+      player.show_hand
+    else
+      [dealer, player].each(&:show_hand)
+    end
   end
 
   def display_busted_message
@@ -182,7 +189,7 @@ class Participant
 
   def show_hand
     prompt <<~MSG
-    #{self} has: #{join_list(cards, ', ', 'and')} (total score = #{hand_total})
+    #{self} has: #{join_list(cards, ', ', 'and')} (total hand score = #{hand_total})
 
     MSG
   end
@@ -247,7 +254,7 @@ class Dealer < Participant
     @name = DEALER_NAMES.sample
   end
 
-  def show_initial_hand
+  def show_hidden_hand
     prompt <<~MSG
     #{self} has: #{cards.first} and ???  
 
