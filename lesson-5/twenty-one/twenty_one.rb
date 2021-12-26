@@ -95,7 +95,7 @@ module Displayable
     clear_screen_and_display_game_header
     show_hands
     display_winner_message
-    display_ultimate_winner_message if winner&.score == Game::GOAL_SCORE
+    display_ultimate_winner_message if ultimate_winner?
     enter_to_continue
   end
 
@@ -256,7 +256,7 @@ class Dealer < Participant
 
   def show_hidden_hand
     prompt <<~MSG
-    #{self} has: #{cards.first} and ???  
+    #{self} has: #{cards.first} and [? ?]
 
     MSG
   end
@@ -396,7 +396,8 @@ class Game
       determine_winner
       winner&.scores_a_point
       show_result
-      break if winner&.score == GOAL_SCORE
+      # break if winner&.score == GOAL_SCORE
+      break if ultimate_winner?
       reset
     end
   end
@@ -441,6 +442,10 @@ class Game
     elsif dealer > player
       self.winner = dealer
     end
+  end
+
+  def ultimate_winner?
+    winner&.score == GOAL_SCORE
   end
 
   def reset
