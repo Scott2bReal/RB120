@@ -24,7 +24,7 @@ module Displayable
   You  |  #{score1}  |  #{score2}  |  #{dealer.name}
        |     |     |
        *-----+-----*
-    
+
     MSG
   end
 
@@ -157,8 +157,8 @@ module Hand
     cards.each do |card|
       self.hand_total += card.value
 
-      if busted?
-        self.hand_total -= 10 if card.ace?
+      if busted? && card.ace?
+        self.hand_total -= 10
       end
     end
   end
@@ -232,9 +232,9 @@ class Player < Participant
   def invalid_name_message
     <<~MSG
     Please select a name which is not a dealer name or empty.
-    Computer team: 
+    Computer team:
     #{Dealer::DEALER_NAMES}
-    
+
     MSG
   end
 
