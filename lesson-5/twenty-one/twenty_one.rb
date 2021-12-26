@@ -112,17 +112,6 @@ module Displayable
     prompt "Congratulations #{player}, you won!" if winner == player
     prompt "#{dealer} won! Better luck next time." if winner == dealer
     prompt "It's a tie!" unless winner
-
-    # The code below produces a strange bug upon a tie... Something about the
-    # case implementation. It throws an error stemming from '===', saying there
-    # is no total method for nil. I can't see why it is trying to call total on
-    # nil.
-    #
-    # case determine_winner
-    # when player then prompt "Congratulations, you won!"
-    # when dealer then prompt "The dealer won! Better luck next time."
-    # when nil    then prompt "It's a tie!"
-    # end
   end
 
   def display_ultimate_winner_message
@@ -272,10 +261,6 @@ class Dealer < Participant
 
     MSG
   end
-
-  def deal_card
-    deck.cards.shuffle!.pop
-  end
 end
 
 class Deck
@@ -329,6 +314,8 @@ class Card
 
   def to_s
     "[#{suit} #{name}]"
+
+    # I want to come back and find a good way to implement this card display
     # <<~MSG
     # *-----*
     # |#{suit}    |
@@ -448,7 +435,7 @@ class Game
   end
 
   def determine_winner
-    return winner if winner # if someone busted, winner will already be set
+    return winner if winner # if someone busted, winner will already be truthy
 
     if player > dealer
       self.winner = player

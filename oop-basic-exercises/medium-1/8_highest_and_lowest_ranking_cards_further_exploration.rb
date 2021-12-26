@@ -20,7 +20,7 @@ class Card
 
   def initialize(rank, suit)
     @rank = rank
-    @suit = suit
+    @suit = Suit.new(suit)
   end
 
   def translate_rank
@@ -34,20 +34,14 @@ class Card
     end
   end
 
-  def rank_suit
-    case suit
-    when 'Hearts' then
-    when 'Diamonds' then
-    when 'Spades' then
-    when 'Clubs' then
-  end
-
   def ==(other_card)
     translate_rank == other_card.translate_rank
   end
 
   def <=>(other_card)
-    translate_rank <=> other_card.translate_rank
+    order = translate_rank <=> other_card.translate_rank
+
+    order == 0 ? suit.rank <=> other_card.suit.rank : order
   end
 
   def to_s
@@ -55,36 +49,63 @@ class Card
   end
 end
 
+class Suit
+  def initialize(name)
+    @name = name
+  end
+
+  attr_reader :name
+
+  def rank
+    case name
+    when 'Diamonds' then 1
+    when 'Clubs'    then 2
+    when 'Hearts'   then 3
+    when 'Spades'   then 4
+    end
+  end
+
+  def to_s
+    name
+  end
+end
+
 # Examples:
 
-cards = [Card.new(2, 'Hearts'),
-         Card.new(10, 'Diamonds'),
-         Card.new('Ace', 'Clubs')]
-puts cards
-puts cards.min == Card.new(2, 'Hearts')
-puts cards.max == Card.new('Ace', 'Clubs')
+# cards = [Card.new(2, 'Hearts'),
+#          Card.new(10, 'Diamonds'),
+#          Card.new('Ace', 'Clubs')]
+# puts cards
+# puts cards.min == Card.new(2, 'Hearts')
+# puts cards.max == Card.new('Ace', 'Clubs')
 
-cards = [Card.new(5, 'Hearts')]
-puts cards.min == Card.new(5, 'Hearts')
-puts cards.max == Card.new(5, 'Hearts')
+# cards = [Card.new(5, 'Hearts')]
+# puts cards.min == Card.new(5, 'Hearts')
+# puts cards.max == Card.new(5, 'Hearts')
 
-cards = [Card.new(4, 'Hearts'),
-         Card.new(4, 'Diamonds'),
-         Card.new(10, 'Clubs')]
-puts cards.min.rank == 4
-puts cards.max == Card.new(10, 'Clubs')
+# cards = [Card.new(4, 'Hearts'),
+#          Card.new(4, 'Diamonds'),
+#          Card.new(10, 'Clubs')]
+# puts cards.min.rank == 4
+# puts cards.max == Card.new(10, 'Clubs')
 
-cards = [Card.new(7, 'Diamonds'),
-         Card.new('Jack', 'Diamonds'),
-         Card.new('Jack', 'Spades')]
-puts cards.min == Card.new(7, 'Diamonds')
-puts cards.max.rank == 'Jack'
+# cards = [Card.new(7, 'Diamonds'),
+#          Card.new('Jack', 'Diamonds'),
+#          Card.new('Jack', 'Spades')]
+# puts cards.min == Card.new(7, 'Diamonds')
+# puts cards.max.rank == 'Jack'
 
-cards = [Card.new(8, 'Diamonds'),
-         Card.new(8, 'Clubs'),
-         Card.new(8, 'Spades')]
-puts cards.min.rank == 8
-puts cards.max.rank == 8
+# cards = [Card.new(8, 'Diamonds'),
+#          Card.new(8, 'Clubs'),
+#          Card.new(8, 'Spades')]
+# puts cards.min.rank == 8
+# puts cards.max.rank == 8
+
+cards = [Card.new(2, 'Diamonds'),
+         Card.new(2, 'Hearts'),
+         Card.new(2, 'Spades')]
+puts cards.min
+puts cards.max
 
 # Output:
 #
