@@ -11,10 +11,6 @@ module Displayable
     puts ""
   end
 
-  def buffer_line
-    puts '-----'
-  end
-
   def scoreboard(score1, score2) # Edit line 7 for general use
     <<-MSG
            Score
