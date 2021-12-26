@@ -370,7 +370,6 @@ class Game
     @player = Player.new(deck)
     @dealer = Dealer.new(deck)
     @current_player = @player
-    @winner = nil
   end
 
   def start
@@ -396,7 +395,6 @@ class Game
       determine_winner
       winner&.scores_a_point
       show_result
-      # break if winner&.score == GOAL_SCORE
       break if ultimate_winner?
       reset
     end
