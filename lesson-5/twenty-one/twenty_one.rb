@@ -156,18 +156,10 @@ module Hand
     end
   end
 
-  def number_of_aces
-    cards.select(&:ace?).size
-  end
-
   def hit
     card = deck.cards.shuffle!.pop
     cards << card
     update_hand_total(card)
-  end
-
-  def stay
-    hand_total
   end
 end
 
