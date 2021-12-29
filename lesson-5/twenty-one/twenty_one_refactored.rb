@@ -62,15 +62,16 @@ module Displayable
     gets
   end
 
+  # Refactor
   def hit_or_stay_prompt
     answer = nil
 
     loop do
-      prompt "Would you like to 1) hit or 2) stay?"
+      prompt turn_options
       answer = gets.chomp
-      break if ['1', '2'].include?(answer)
+      break if Game::TURN_OPTIONS.keys.include?(answer)
 
-      prompt "Please select using numbers 1 or 2"
+      prompt "Please select using numbers #{turn_option_numbers_as_string}"
     end
 
     answer
@@ -82,26 +83,24 @@ module Displayable
     puts scoreboard(player.score, dealer.score)
   end
 
+  # Refactor
   def display_game_info
     clear_screen_and_display_game_header
-    show_hands(hide_dealer_cards: true)
+    show_hands
   end
 
+  # Refactor
   def show_result
     clear_screen_and_display_game_header
+    dealer.hidden_card = false
     show_hands
     display_winner_message
     display_ultimate_winner_message if ultimate_winner?
     enter_to_continue
   end
 
-  def show_hands(hide_dealer_cards: false)
-    if hide_dealer_cards
-      dealer.show_hidden_hand
-      player.show_hand
-    else
-      [dealer, player].each(&:show_hand)
-    end
+  def show_hands
+    [dealer, player].each(&:show_hand)
   end
 
   def display_busted_message
@@ -132,6 +131,22 @@ module Joinable
     else
       "#{list[0..-2].join(delim)}#{delim}#{last_word} #{list[-1]}"
     end
+  end
+
+  # Refactor
+  def turn_options
+    option_strings_array = []
+
+    Game::TURN_OPTIONS.each do |key, option|
+      option_strings_array << "#{key}) #{option}"
+    end
+
+    "Would you like to #{join_list(option_strings_array, ' ', 'or')}"
+  end
+
+  # Refactor
+  def turn_option_numbers_as_string
+    join_list(Game::TURN_OPTIONS.keys, ', ', 'or')
   end
 end
 
@@ -245,10 +260,20 @@ class Dealer < Participant
   DEALER_NAMES = %w(R2D2 C3P0)
   DEALER_LIMIT = 17
 
+  attr_accessor :hidden_card
+
   def initialize(deck)
     super(deck)
     @name = DEALER_NAMES.sample
+    @hidden_card = true
   end
+
+  # Refactor (here to end of class)
+  def show_hand
+    hidden_card ? show_hidden_hand : super
+  end
+
+  private
 
   def show_hidden_hand
     prompt <<~MSG
@@ -328,11 +353,12 @@ class Card
 end
 
 class Game
-  include Displayable, Hand
+  include Displayable, Joinable, Hand
 
   INITIAL_DEAL = 2
   NUMBER_OF_PLAYERS = 2
   GOAL_SCORE = 5
+  TURN_OPTIONS = { '1' => 'hit', '2' => 'stay' } # Refactor
   DESCRIPTION = <<~MSG
       *~ Welcome to #{Hand::MAX_POINTS}! ~*
 
@@ -413,7 +439,7 @@ class Game
     loop do
       break if player.busted?
 
-      hit_or_stay_prompt == '1' ? player.hit : break
+      hit_or_stay_prompt == TURN_OPTIONS.key('hit') ? player.hit : break
       display_game_info
     end
 
@@ -453,6 +479,8 @@ class Game
       participant.cards = []
       participant.hand_total = 0
     end
+
+    dealer.hidden_card = true # Refactor
   end
 
   def reset_match
