@@ -1,5 +1,3 @@
-require 'pry'
-
 module Joinable
   def join_list(list, delim, last_word) # list should be an array
     case list.size
