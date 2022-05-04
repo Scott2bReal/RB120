@@ -159,9 +159,9 @@ end
 
 # Testing your class:
 
-hand = PokerHand.new(Deck.new)
-hand.print
-puts hand.evaluate
+# hand = PokerHand.new(Deck.new)
+# hand.print
+# puts hand.evaluate
 
 # Danger danger danger: monkey
 # patching for testing purposes.
@@ -170,104 +170,104 @@ class Array
 end
 
 # Test that we can identify each PokerHand type.
-hand = PokerHand.new([
-  Card.new(10,      'Hearts'),
-  Card.new('Ace',   'Hearts'),
-  Card.new('Queen', 'Hearts'),
-  Card.new('King',  'Hearts'),
-  Card.new('Jack',  'Hearts')
-])
-puts "Royal Flush: #{hand.evaluate == 'Royal flush'}"
+# hand = PokerHand.new([
+#   Card.new(10,      'Hearts'),
+#   Card.new('Ace',   'Hearts'),
+#   Card.new('Queen', 'Hearts'),
+#   Card.new('King',  'Hearts'),
+#   Card.new('Jack',  'Hearts')
+# ])
+# puts "Royal Flush: #{hand.evaluate == 'Royal flush'}"
 
-hand = PokerHand.new([
-  Card.new(8,       'Clubs'),
-  Card.new(9,       'Clubs'),
-  Card.new('Queen', 'Clubs'),
-  Card.new(10,      'Clubs'),
-  Card.new('Jack',  'Clubs')
-])
-puts "Straight Flush: #{hand.evaluate == 'Straight flush'}"
+# hand = PokerHand.new([
+#   Card.new(8,       'Clubs'),
+#   Card.new(9,       'Clubs'),
+#   Card.new('Queen', 'Clubs'),
+#   Card.new(10,      'Clubs'),
+#   Card.new('Jack',  'Clubs')
+# ])
+# puts "Straight Flush: #{hand.evaluate == 'Straight flush'}"
 
-hand = PokerHand.new([
-  Card.new(3, 'Hearts'),
-  Card.new(3, 'Clubs'),
-  Card.new(5, 'Diamonds'),
-  Card.new(3, 'Spades'),
-  Card.new(3, 'Diamonds')
-])
-puts "4 of a kind: #{hand.evaluate == 'Four of a kind'}"
+# hand = PokerHand.new([
+#   Card.new(3, 'Hearts'),
+#   Card.new(3, 'Clubs'),
+#   Card.new(5, 'Diamonds'),
+#   Card.new(3, 'Spades'),
+#   Card.new(3, 'Diamonds')
+# ])
+# puts "4 of a kind: #{hand.evaluate == 'Four of a kind'}"
 
-hand = PokerHand.new([
-  Card.new(3, 'Hearts'),
-  Card.new(3, 'Clubs'),
-  Card.new(5, 'Diamonds'),
-  Card.new(3, 'Spades'),
-  Card.new(5, 'Hearts')
-])
-puts "Full House: #{hand.evaluate == 'Full house'}"
+# hand = PokerHand.new([
+#   Card.new(3, 'Hearts'),
+#   Card.new(3, 'Clubs'),
+#   Card.new(5, 'Diamonds'),
+#   Card.new(3, 'Spades'),
+#   Card.new(5, 'Hearts')
+# ])
+# puts "Full House: #{hand.evaluate == 'Full house'}"
 
-hand = PokerHand.new([
-  Card.new(10, 'Hearts'),
-  Card.new('Ace', 'Hearts'),
-  Card.new(2, 'Hearts'),
-  Card.new('King', 'Hearts'),
-  Card.new(3, 'Hearts')
-])
-puts "Flush: #{hand.evaluate == 'Flush'}"
+# hand = PokerHand.new([
+#   Card.new(10, 'Hearts'),
+#   Card.new('Ace', 'Hearts'),
+#   Card.new(2, 'Hearts'),
+#   Card.new('King', 'Hearts'),
+#   Card.new(3, 'Hearts')
+# ])
+# puts "Flush: #{hand.evaluate == 'Flush'}"
 
-hand = PokerHand.new([
-  Card.new(8,      'Clubs'),
-  Card.new(9,      'Diamonds'),
-  Card.new(10,     'Clubs'),
-  Card.new(7,      'Hearts'),
-  Card.new('Jack', 'Clubs')
-])
-puts "Straight: #{hand.evaluate == 'Straight'}"
+# hand = PokerHand.new([
+#   Card.new(8,      'Clubs'),
+#   Card.new(9,      'Diamonds'),
+#   Card.new(10,     'Clubs'),
+#   Card.new(7,      'Hearts'),
+#   Card.new('Jack', 'Clubs')
+# ])
+# puts "Straight: #{hand.evaluate == 'Straight'}"
 
-hand = PokerHand.new([
-  Card.new('Queen', 'Clubs'),
-  Card.new('King',  'Diamonds'),
-  Card.new(10,      'Clubs'),
-  Card.new('Ace',   'Hearts'),
-  Card.new('Jack',  'Clubs')
-])
-puts "Straight: #{hand.evaluate == 'Straight'}"
+# hand = PokerHand.new([
+#   Card.new('Queen', 'Clubs'),
+#   Card.new('King',  'Diamonds'),
+#   Card.new(10,      'Clubs'),
+#   Card.new('Ace',   'Hearts'),
+#   Card.new('Jack',  'Clubs')
+# ])
+# puts "Straight: #{hand.evaluate == 'Straight'}"
 
-hand = PokerHand.new([
-  Card.new(3, 'Hearts'),
-  Card.new(3, 'Clubs'),
-  Card.new(5, 'Diamonds'),
-  Card.new(3, 'Spades'),
-  Card.new(6, 'Diamonds')
-])
-puts "3 of a kind: #{hand.evaluate == 'Three of a kind'}"
+# hand = PokerHand.new([
+#   Card.new(3, 'Hearts'),
+#   Card.new(3, 'Clubs'),
+#   Card.new(5, 'Diamonds'),
+#   Card.new(3, 'Spades'),
+#   Card.new(6, 'Diamonds')
+# ])
+# puts "3 of a kind: #{hand.evaluate == 'Three of a kind'}"
 
-hand = PokerHand.new([
-  Card.new(9, 'Hearts'),
-  Card.new(9, 'Clubs'),
-  Card.new(5, 'Diamonds'),
-  Card.new(8, 'Spades'),
-  Card.new(5, 'Hearts')
-])
-puts "Two Pair: #{hand.evaluate == 'Two pair'}"
+# hand = PokerHand.new([
+#   Card.new(9, 'Hearts'),
+#   Card.new(9, 'Clubs'),
+#   Card.new(5, 'Diamonds'),
+#   Card.new(8, 'Spades'),
+#   Card.new(5, 'Hearts')
+# ])
+# puts "Two Pair: #{hand.evaluate == 'Two pair'}"
 
-hand = PokerHand.new([
-  Card.new(2, 'Hearts'),
-  Card.new(9, 'Clubs'),
-  Card.new(5, 'Diamonds'),
-  Card.new(9, 'Spades'),
-  Card.new(3, 'Diamonds')
-])
-puts "Pair: #{hand.evaluate == 'Pair'}"
+# hand = PokerHand.new([
+#   Card.new(2, 'Hearts'),
+#   Card.new(9, 'Clubs'),
+#   Card.new(5, 'Diamonds'),
+#   Card.new(9, 'Spades'),
+#   Card.new(3, 'Diamonds')
+# ])
+# puts "Pair: #{hand.evaluate == 'Pair'}"
 
-hand = PokerHand.new([
-  Card.new(2,      'Hearts'),
-  Card.new('King', 'Clubs'),
-  Card.new(5,      'Diamonds'),
-  Card.new(9,      'Spades'),
-  Card.new(3,      'Diamonds')
-])
-puts "High Card: #{hand.evaluate == 'High card'}"
+# hand = PokerHand.new([
+#   Card.new(2,      'Hearts'),
+#   Card.new('King', 'Clubs'),
+#   Card.new(5,      'Diamonds'),
+#   Card.new(9,      'Spades'),
+#   Card.new(3,      'Diamonds')
+# ])
+# puts "High Card: #{hand.evaluate == 'High card'}"
 
 # 5 of Clubs
 # 7 of Diamonds
@@ -298,3 +298,14 @@ puts "High Card: #{hand.evaluate == 'High card'}"
 # If you are unfamiliar with Poker, please see this description of the various
 # hand types. Since we won't actually be playing a game of Poker, it isn't
 # necessary to know how to play.
+
+deck = Deck.new
+hand = PokerHand.new(deck)
+counter = 0
+
+until hand.evaluate == "Royal flush"
+  p counter += 1
+  hand = PokerHand.new(deck)
+end
+
+puts "It took #{counter} times to make a royal flush!"
